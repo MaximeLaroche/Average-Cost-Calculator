@@ -32,8 +32,11 @@ for index, row in data.iterrows():
         sym = row['Symbol']
         avg = 0
         tot = 0
-    if row['Action'] == 'Buy' and row['Quantity'] != - tot:
+    if row['Action'] == 'Buy' and tot >= 0: # we have some and are buying
         avg = (avg * tot - row['Net Amount']) / (row['Quantity'] + tot)
+    if row['Action'] == 'Buy' and tot < 0: # we shoted and are in the process of closing the short
+        avg = row['Price'] + row['Commission']
+        
     tot = row['Quantity'] + tot
     data.at[index,'average cost'] = avg
     data.at[index, 'total ammount of shares'] = tot
