@@ -36,8 +36,11 @@ for index, row in data.iterrows():
         tot = 0
     if row['Action'] == 'Buy' and tot >= 0: # we have some and are buying
         avg = (avg * tot - row['Net Amount']) / (row['Quantity'] + tot)
-    if row['Action'] == 'Buy' and tot < 0: # we shoted and are in the process of closing the short
+    if row['Action'] == 'Sell' and tot <= 0: # Sell to Open
+        data.at[index, 'Action'] = 'Sell to Open'
+    if row['Action'] == 'Buy' and tot < 0: # we shored and are in the process of closing the short
         avg = row['Price'] + row['Commission']
+        data.at[index, 'Action'] = 'Buy to close'
     if row['Action'] == 'REV': # reverse split
         try:
             fractionString = re.findall('[1-9]+:[1-9]+', row['Description'])[0]
@@ -65,7 +68,6 @@ for index, row in data.iterrows():
             data.at[index, 'Other Symbols'] += ''.join((otherSymbol) for otherSymbol in otherSymbols)
         except:
             data.at[index,'Errors'] = 'Could not calculate option split'
-
     tot = row['Quantity'] + tot
     data.at[index,'average cost'] = avg
     data.at[index, 'total ammount of shares'] = tot
