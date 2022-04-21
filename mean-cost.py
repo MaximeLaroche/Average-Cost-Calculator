@@ -79,6 +79,8 @@ for index, row in data.iterrows():
             data.at[index, 'Other Symbols'] += ''.join((otherSymbol) for otherSymbol in otherSymbols)
         except:
             data.at[index,'Errors'] = 'Could not calculate option split'
+    if(row['Action']=='EXP'): # option expired 
+        avg = 0
     tot = row['Quantity'] + tot
     data.at[index,'average cost'] = avg
     data.at[index, 'total ammount of shares'] = tot
