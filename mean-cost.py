@@ -81,6 +81,13 @@ for index, row in data.iterrows():
             data.at[index,'Errors'] = 'Could not calculate option split'
     if(row['Action']=='EXP'): # option expired 
         avg = 0
+    if(row['Action'] == 'ASN'):
+        option = row['Description'].split(' ', 1)[0]
+        if(option=='PUT'):
+            subString = re.findall('[0-9]{2}/[0-9]{2}/[0-9]{2} [0-9]+' , row['Description'])[0]
+            avg = int(subString.split(' ', 1)[1])
+
+
     tot = row['Quantity'] + tot
     data.at[index,'average cost'] = avg
     data.at[index, 'total ammount of shares'] = tot
