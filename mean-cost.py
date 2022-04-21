@@ -10,7 +10,7 @@ def removeTFSA(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def removeUnusedCol(df: pd.DataFrame) -> pd.DataFrame:
-    df.drop(['Account #', 'Activity Type', 'Account Type'], axis = 1, inplace = True) 
+    df.drop(['Account #', 'Activity Type', 'Account Type','Settlement Date'], axis = 1, inplace = True) 
     return df
 
 data = removeTFSA(raw)
@@ -24,22 +24,33 @@ data["average cost"] = 0
 data["total ammount of shares"] = 0
 data['Errors'] = ''
 data['Other Symbols'] = ''
+data['Type'] = ''
 # Calculate cumulative averave cost
-
+type = ''
 avg = 0
 tot = 0
 sym = []
 for index, row in data.iterrows():
+    if('PUT' in row['Description'] or 'CALL' in row['Description']):
+        type = 'Option'
+    else:
+        type = 'Stock'
     if row['Symbol'] not in sym :
         sym = [row['Symbol']]
         avg = 0
         tot = 0
     if row['Action'] == 'Buy' and tot >= 0: # we have some and are buying
-        avg = (avg * tot - row['Net Amount']) / (row['Quantity'] + tot)
+        if(type == 'Option'):
+            avg = (avg * tot - row['Net Amount']/100) / (row['Quantity'] + tot)
+        else:
+            avg = (avg * tot - row['Net Amount']) / (row['Quantity'] + tot)
     if row['Action'] == 'Sell' and tot <= 0: # Sell to Open
         data.at[index, 'Action'] = 'Sell to Open'
     if row['Action'] == 'Buy' and tot < 0: # we shored and are in the process of closing the short
-        avg = row['Price'] + row['Commission']
+        if(type == 'Option'):
+            avg = row['Price'] + row['Commission']/100
+        else:
+            avg = row['Price'] + row['Commission']
         data.at[index, 'Action'] = 'Buy to close'
     if row['Action'] == 'REV': # reverse split
         try:
@@ -71,7 +82,7 @@ for index, row in data.iterrows():
     tot = row['Quantity'] + tot
     data.at[index,'average cost'] = avg
     data.at[index, 'total ammount of shares'] = tot
-    
+    data.at[index, 'Type'] = type
     
 # sort by date
 # data.sort_values(by=['Transaction Date'], ascending=[True], inplace=True)
