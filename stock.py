@@ -14,26 +14,33 @@ class NAMES:
     date = 'Date'
     action = 'Action'
     price = 'Price'
+    ticker = 'Symbol'
     quantity = 'Quantity'
     avg = 'Average cost'
     tot = 'Total Amount of shares'
 
 
 def initDf() -> pd.DataFrame:
-    df = pd.DataFrame(columns=[NAMES.date, NAMES.action, NAMES.price, NAMES.quantity, NAMES.avg, NAMES.tot])
+    df = pd.DataFrame(columns=[
+        NAMES.date, 
+        NAMES.action, 
+        NAMES.ticker ,
+        NAMES.price, 
+        NAMES.quantity, 
+        NAMES.avg, 
+        NAMES.tot])
     return df
 
 
 df = initDf()
-class Security:
+class Stock:
     df = initDf()
     def __init__(self, ticker: str):
-        self.avg = 0
-        self.total = 0
-        self.ticker = ticker
-    def _getAdjCommision(self, commision: number)-> number:
-        return 0
-        pass
+        self.avg: number = 0
+        self.total: number = 0
+        self.ticker: str = ticker
+    def _getAdjCommision(self, commission: number)-> number:
+        return commission
     def buy(self, quantity: number, price: number, commission: number, date: Date):
         commission = self._getAdjCommision(commission)
         price = price + commission/quantity
@@ -44,10 +51,9 @@ class Security:
             NAMES.action: ACTIONS.buy, 
             NAMES.quantity: quantity, 
             NAMES.price: price, 
-            NAMES.avg: self.avg, 
-            NAMES.tot: self.total
             }
         self._add(data)
+
     def sell(self, quantity: number, price: number, commission: number, date: Date):
         commission = self._getAdjCommision(commission)
         price = price - commission/quantity
@@ -58,14 +64,16 @@ class Security:
             NAMES.action: ACTIONS.sell, 
             NAMES.quantity: quantity, 
             NAMES.price: price, 
-            NAMES.avg: self.avg, 
-            NAMES.tot: self.total
             }
         self._add(data)
     def _add(self, obj: Dict):
-        Security.df = pd.concat(
+        obj[NAMES.ticker] = self.ticker
+        obj[NAMES.avg] = self.avg
+        obj[NAMES.tot] = self.total
+        
+        Stock.df = pd.concat(
             [
-                Security.df, 
+                Stock.df, 
                 pd.DataFrame.from_records(
                     [
                         obj
