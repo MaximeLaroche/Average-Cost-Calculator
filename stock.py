@@ -86,7 +86,7 @@ class Stock:
                 return ratio
             for index, row in self.splits.iterrows():
                 splitDate = row['Date']
-                splitDateTime = datetime(splitDate.year, splitDate.month, splitDate.day)
+                splitDateTime = datetime.strptime(splitDate, '%Y-%m-%d')
                 if self.prev_date <= splitDateTime <= dateTime:
                     ratio = row['Stock Splits']
                     self.avg /= ratio
