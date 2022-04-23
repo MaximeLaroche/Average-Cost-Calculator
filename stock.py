@@ -2,12 +2,14 @@
 
 from sqlite3 import Date
 from typing import Dict
-from numpy import number
+from numpy import number, short
 import pandas as pd
 
 class ACTIONS:
     buy = 'Buy'
+    buyToClose = 'Buy to close'
     sell = 'Sell'
+    shortSell = 'Short sell'
     split = 'split'
 
 class NAMES:
@@ -16,6 +18,7 @@ class NAMES:
     price = 'Price'
     ticker = 'Symbol'
     quantity = 'Quantity'
+    index = 'Index'
     avg = 'Average cost'
     tot = 'Total Amount of shares'
 
@@ -26,6 +29,7 @@ def initDf() -> pd.DataFrame:
         NAMES.action, 
         NAMES.ticker ,
         NAMES.price, 
+        NAMES.index,
         NAMES.quantity, 
         NAMES.avg, 
         NAMES.tot])
@@ -34,34 +38,69 @@ def initDf() -> pd.DataFrame:
 
 df = initDf()
 class Stock:
+    index: number = 0
     df = initDf()
     def __init__(self, ticker: str):
         self.avg: number = 0
         self.total: number = 0
         self.ticker: str = ticker
+    def getTicker(self) ->str:
+        return self.ticker
     def _getAdjCommision(self, commission: number)-> number:
         return commission
     def buy(self, quantity: number, price: number, commission: number, date: Date):
+        quantity = abs(quantity)
+        commission = abs(commission)
         commission = self._getAdjCommision(commission)
         price = price + commission/quantity
-        self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
+        if(self.total < 0):
+            buyToCloseQty = min(abs(self.total), quantity)
+            quantity -= buyToCloseQty
+            self._buyToClose(buyToCloseQty, price, date)
+        if(quantity != 0): # the buy to closde may have put the remaining to 0
+            self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
+            self.total += quantity
+            data = {
+                NAMES.date: date, 
+                NAMES.action: ACTIONS.buy, 
+                NAMES.quantity: quantity, 
+                NAMES.price: price, 
+                }
+            self._add(data)
+    def _buyToClose(self, quantity: number, price: number, date: Date):
+        quantity = abs(quantity)
+        self.avg = price
         self.total += quantity
         data = {
             NAMES.date: date, 
-            NAMES.action: ACTIONS.buy, 
+            NAMES.action: ACTIONS.buyToClose, 
             NAMES.quantity: quantity, 
             NAMES.price: price, 
             }
         self._add(data)
-
     def sell(self, quantity: number, price: number, commission: number, date: Date):
+        commission = abs(commission)
+        quantity = abs(quantity)
         commission = self._getAdjCommision(commission)
         price = price - commission/quantity
-        
-        self.total += quantity
+        if(self.total - quantity < 0):
+            shortQty = quantity - self.total
+            quantity -= shortQty
+            self._shortSell(shortQty, price, date)
+        if(quantity != 0):
+            self.total -= quantity
+            data = {
+                NAMES.date: date, 
+                NAMES.action: ACTIONS.sell, 
+                NAMES.quantity: quantity, 
+                NAMES.price: price, 
+                }
+            self._add(data)
+    def _shortSell(self, quantity: number, price: number, date: Date):
+        self.total -= quantity
         data = {
             NAMES.date: date, 
-            NAMES.action: ACTIONS.sell, 
+            NAMES.action: ACTIONS.shortSell, 
             NAMES.quantity: quantity, 
             NAMES.price: price, 
             }
@@ -70,7 +109,8 @@ class Stock:
         obj[NAMES.ticker] = self.ticker
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
-        
+        self.index += 1
+        obj[NAMES.index] = self.index
         Stock.df = pd.concat(
             [
                 Stock.df, 
@@ -84,3 +124,11 @@ class Stock:
     def split(self, ratio: number):
         self.avg /= ratio
         self.total *= ratio
+    def _sort(df: pd.DataFrame)-> pd.DataFrame:
+        df.sort_values(by=[NAMES.ticker, NAMES.date, NAMES.index], ascending=[True,True, True], inplace=True)
+        return df
+    def export():
+        Stock.df = Stock._sort(Stock.df)
+        Stock.df.to_excel('Stocks.xlsx', index = None) 
+
+    

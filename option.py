@@ -25,13 +25,16 @@ def initDf() -> pd.DataFrame:
 
 class Option(Stock):
     df = initDf()
-    def __init__(self, description: str):
+    def __init__(self, code: str, description: str):
+        self.code = code
         self.type: str = description.split(' ')[0]
         ticker = description.split(' ')[1]
         exp = description.split(' ')[2]
         self.exp: datetime = datetime.datetime.strptime(exp,'%m/%d/%y')
         self.strike: number = float(description.split(' ')[3])
         Stock.__init__(self, ticker)
+    def getTicker(self) -> str:
+        return self.code
     def _getAdjCommision(self, commission: number)-> number:
         return commission/100
     def _add(self, obj: dict):
@@ -41,6 +44,8 @@ class Option(Stock):
         obj[NAMES.ticker] = self.ticker
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
+        self.index += 1
+        obj[NAMES.index] = self.index
         Option.df = pd.concat(
             [
                 Option.df, 
@@ -51,6 +56,9 @@ class Option(Stock):
                 )
             ]
         )
+    def export():
+        Option.df = Option._sort(Option.df)
+        Option.df.to_excel('Option.xlsx', index = None) 
 
 
         

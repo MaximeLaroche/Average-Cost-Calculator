@@ -18,11 +18,16 @@ securities= [Stock('invalid')]
 
 def getSecurity(symbol: str, type: str, description)-> Stock:
     for item in securities:
-        if symbol == item.ticker:
+        if symbol == item.getTicker():
             return item
     if(type == 'Option'):
-        return Option(description)
-    return Stock(symbol)
+        secu = Option(symbol, description)
+        securities.append(secu)
+
+        return secu
+    secu = Stock(symbol)
+    securities.append(secu)
+    return secu
 type = ''
 for index, row in data.iterrows():
     if('PUT' in row['Description'] or 'CALL' in row['Description']):
@@ -37,6 +42,6 @@ for index, row in data.iterrows():
         secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'])
         
 
-Stock.df.to_excel('Stocks.xlsx', index = None) 
-Option.df.to_excel('Options.xlsx', index = None)        
+Option.export()
+Stock.export()       
         
