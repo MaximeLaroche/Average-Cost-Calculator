@@ -46,24 +46,8 @@ class Option(Stock):
         obj[OPTION_NAMES.strike] = self.strike
         obj[OPTION_NAMES.exp] = self.exp
         obj[OPTION_NAMES.type] = self.type
-        obj[NAMES.ticker] = self.ticker
-        obj[NAMES.currency] = self.currency
-        obj[NAMES.avg] = self.avg
-        obj[NAMES.tot] = self.total
-        self.index += 1
-        obj[NAMES.index] = self.index
-        df = self.getDf()
-        df = pd.concat(
-            [
-                df, 
-                pd.DataFrame.from_records(
-                    [
-                        obj
-                    ]
-                )
-            ]
-        )
-        self.setDf(df)
+        
+        super()._add(obj)
     def export():
         Option.df = Option._sort(Option.df)
         Option.df.to_excel('Option.xlsx', index = None) 
