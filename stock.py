@@ -93,11 +93,12 @@ class Stock:
                     ratio = row['Stock Splits']
                     self.avg /= ratio
                     self.total *= ratio
-                    self._add({
-                        ACTIONS.split: ratio,
-                        NAMES.action: ACTIONS.split,
-                        NAMES.date: splitDateTime
-                    })
+                    if(self.total != 0):
+                        self._add({
+                            ACTIONS.split: ratio,
+                            NAMES.action: ACTIONS.split,
+                            NAMES.date: splitDateTime
+                        })
             self.prev_date = dateTime
         except:
             pass
