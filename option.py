@@ -25,14 +25,15 @@ def initDf() -> pd.DataFrame:
 
 class Option(Stock):
     df = initDf()
-    def __init__(self, code: str, description: str):
+    def __init__(self, code: str, description: str, currency: str):
         self.code = code
         self.type: str = description.split(' ')[0]
         ticker = description.split(' ')[1]
         exp = description.split(' ')[2]
         self.exp: datetime = datetime.datetime.strptime(exp,'%m/%d/%y')
         self.strike: number = float(description.split(' ')[3])
-        Stock.__init__(self, ticker)
+        Stock.__init__(self, ticker, currency)
+        
     def getTicker(self) -> str:
         return self.code
     def _getAdjCommision(self, commission: number)-> number:

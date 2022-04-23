@@ -13,19 +13,19 @@ data = filter.removeBadData(data)
 data.sort_values(by=['Symbol', 'Transaction Date'], ascending=[True,True], inplace=True)
 
 
-securities= [Stock('invalid')]
+securities= [Stock('invalid', 'CAD')]
 
 
-def getSecurity(symbol: str, type: str, description)-> Stock:
+def getSecurity(symbol: str, type: str, description, currency: str)-> Stock:
     for item in securities:
         if symbol == item.getTicker():
             return item
     if(type == 'Option'):
-        secu = Option(symbol, description)
+        secu = Option(symbol, description, currency)
         securities.append(secu)
 
         return secu
-    secu = Stock(symbol)
+    secu = Stock(symbol, currency)
     securities.append(secu)
     return secu
 type = ''
@@ -35,10 +35,10 @@ for index, row in data.iterrows():
     else:
         type = 'Stock'
     if(row['Action'] == 'Buy'):
-        secu = getSecurity(row['Symbol'], type, row['Description'])
+        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         secu.buy(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'])
     elif(row['Action']== 'Sell'):
-        secu = getSecurity(row['Symbol'], type, row['Description'])
+        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'])
         
 
