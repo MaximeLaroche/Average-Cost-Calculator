@@ -52,18 +52,19 @@ class Stock:
     def _getSplits(self):
         ticker = yf.Ticker(self.ticker)
         self.splits = ticker.splits
-    def checkSplits(self, date: Date)->number:
+    def checkSplits(self, date: str)->number:
         ratio = 1
-        dateTime = datetime.strptime(date, '%Y-%m-%d')
+        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         if self.prev_date is None:
             self.prev_date = dateTime
             return ratio
         for i in range(len(self.splits)):
-            splitDate = datetime.strptime(str(self.splits.index[i]), '%y-%m-%d')
-            if self.prev_date <= splitDate <= dateTime:
+            splitDate = self.splits.index[i]
+            splitDateTime = datetime(splitDate.year, splitDate.month, splitDate.day)
+            if self.prev_date <= splitDateTime <= dateTime:
                 ratio = self.splits[i]
-                avg /= ratio
-                tot *= ratio
+                self.avg /= ratio
+                self.total *= ratio
                 self._add({
                     ACTIONS.split: ratio,
                     NAMES.date: self.splits.index[i]
@@ -75,7 +76,7 @@ class Stock:
         return self.ticker
     def _getAdjCommision(self, commission: number)-> number:
         return commission
-    def buy(self, quantity: number, price: number, commission: number, date: Date):
+    def buy(self, quantity: number, price: number, commission: number, date: str):
         self.checkSplits(date)
         quantity = abs(quantity)
         commission = abs(commission)
@@ -95,7 +96,7 @@ class Stock:
                 NAMES.price: price, 
                 }
             self._add(data)
-    def _buyToClose(self, quantity: number, price: number, date: Date):
+    def _buyToClose(self, quantity: number, price: number, date: str):
         quantity = abs(quantity)
         self.avg = price
         self.total += quantity
@@ -106,7 +107,7 @@ class Stock:
             NAMES.price: price, 
             }
         self._add(data)
-    def sell(self, quantity: number, price: number, commission: number, date: Date):
+    def sell(self, quantity: number, price: number, commission: number, date: str):
         self.checkSplits(date)
         commission = abs(commission)
         quantity = abs(quantity)
@@ -125,7 +126,7 @@ class Stock:
                 NAMES.price: price, 
                 }
             self._add(data)
-    def _shortSell(self, quantity: number, price: number, date: Date):
+    def _shortSell(self, quantity: number, price: number, date: str):
         self.total -= quantity
         data = {
             NAMES.date: date, 
