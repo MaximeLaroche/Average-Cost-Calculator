@@ -22,6 +22,7 @@ class NAMES:
     price = 'Price'
     ticker = 'Symbol'
     quantity = 'Quantity'
+    currency = 'Currency'
     index = 'Index'
     avg = 'Average cost'
     tot = 'Total Amount of shares'
@@ -35,6 +36,7 @@ def initDf() -> pd.DataFrame:
         NAMES.price, 
         NAMES.index,
         NAMES.quantity, 
+        NAMES.currency,
         NAMES.avg, 
         NAMES.tot])
     return df
@@ -96,7 +98,7 @@ class Stock:
                         NAMES.action: ACTIONS.split,
                         NAMES.date: splitDateTime
                     })
-                    return ratio
+            self.prev_date = dateTime
         except:
             pass
         return ratio
@@ -157,6 +159,10 @@ class Stock:
                 NAMES.price: price, 
                 }
             self._add(data)
+    def getDf(self)->pd.DataFrame:
+        return Stock.df
+    def setDf(self, df: pd.DataFrame):
+        Stock.df = df
     def _shortSell(self, quantity: number, price: number, date: str):
         self.total -= quantity
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
@@ -171,11 +177,13 @@ class Stock:
         obj[NAMES.ticker] = self.ticker
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
+        obj[NAMES.currency] = self.currency
         self.index += 1
         obj[NAMES.index] = self.index
-        Stock.df = pd.concat(
+        df = self.getDf()
+        df = pd.concat(
             [
-                Stock.df, 
+                df, 
                 pd.DataFrame.from_records(
                     [
                         obj
@@ -183,6 +191,8 @@ class Stock:
                 )
             ]
         )
+        self.setDf(df)
+        
     def split(self, ratio: number):
         self.avg /= ratio
         self.total *= ratio

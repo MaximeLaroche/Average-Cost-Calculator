@@ -17,6 +17,7 @@ def initDf() -> pd.DataFrame:
         OPTION_NAMES.type,
         OPTION_NAMES.strike,
         OPTION_NAMES.exp,
+        NAMES.currency,
         NAMES.price, 
         NAMES.quantity, 
         NAMES.avg, 
@@ -33,7 +34,10 @@ class Option(Stock):
         self.exp: datetime = datetime.datetime.strptime(exp,'%m/%d/%y')
         self.strike: number = float(description.split(' ')[3])
         Stock.__init__(self, ticker, currency)
-        
+    def getDf(self)->pd.DataFrame:
+        return Option.df
+    def setDf(self,df: pd.DataFrame):
+        Option.df = df
     def getTicker(self) -> str:
         return self.code
     def _getAdjCommision(self, commission: number)-> number:
@@ -43,13 +47,15 @@ class Option(Stock):
         obj[OPTION_NAMES.exp] = self.exp
         obj[OPTION_NAMES.type] = self.type
         obj[NAMES.ticker] = self.ticker
+        obj[NAMES.currency] = self.currency
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
         self.index += 1
         obj[NAMES.index] = self.index
-        Option.df = pd.concat(
+        df = self.getDf()
+        df = pd.concat(
             [
-                Option.df, 
+                df, 
                 pd.DataFrame.from_records(
                     [
                         obj
@@ -57,6 +63,7 @@ class Option(Stock):
                 )
             ]
         )
+        self.setDf(df)
     def export():
         Option.df = Option._sort(Option.df)
         Option.df.to_excel('Option.xlsx', index = None) 
