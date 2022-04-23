@@ -1,9 +1,12 @@
 
 
+from datetime import datetime
 from sqlite3 import Date
+from tabnanny import check
 from typing import Dict
 from numpy import number, short
 import pandas as pd
+import yfinance as yf
 
 class ACTIONS:
     buy = 'Buy'
@@ -44,11 +47,36 @@ class Stock:
         self.avg: number = 0
         self.total: number = 0
         self.ticker: str = ticker
+        self.prev_date = None
+        self._getSplits()
+    def _getSplits(self):
+        ticker = yf.Ticker(self.ticker)
+        self.splits = ticker.splits
+    def checkSplits(self, date: Date)->number:
+        ratio = 1
+        dateTime = datetime.strptime(date, '%Y-%m-%d')
+        if self.prev_date is None:
+            self.prev_date = dateTime
+            return ratio
+        for i in range(len(self.splits)):
+            splitDate = datetime.strptime(str(self.splits.index[i]), '%y-%m-%d')
+            if self.prev_date <= splitDate <= dateTime:
+                ratio = self.splits[i]
+                avg /= ratio
+                tot *= ratio
+                self._add({
+                    ACTIONS.split: ratio,
+                    NAMES.date: self.splits.index[i]
+                })
+                return ratio
+
+        return ratio
     def getTicker(self) ->str:
         return self.ticker
     def _getAdjCommision(self, commission: number)-> number:
         return commission
     def buy(self, quantity: number, price: number, commission: number, date: Date):
+        self.checkSplits(date)
         quantity = abs(quantity)
         commission = abs(commission)
         commission = self._getAdjCommision(commission)
@@ -79,6 +107,7 @@ class Stock:
             }
         self._add(data)
     def sell(self, quantity: number, price: number, commission: number, date: Date):
+        self.checkSplits(date)
         commission = abs(commission)
         quantity = abs(quantity)
         commission = self._getAdjCommision(commission)
