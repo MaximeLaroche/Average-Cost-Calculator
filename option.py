@@ -56,16 +56,16 @@ class Option(Stock):
         Option.df = Option._sort(Option.df)
         Option.df.to_excel('Option.xlsx', index = None) 
 
-    def isRightSecurity(self, symbol: str)->bool:
-    
+    def isRightSecurity(self, symbol: str, description: str)->bool:
+
         for code in self.codes:
-            if code == symbol:
+            if code == symbol or code in description:
                 return True
         
         return False
     def checkSplits(self, dateTime: datetime)->number:
         return 1
-    def adj(self,date: str, description: str):
+    def adj(self,date: str,symbol: str, description: str):
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         newSym = description.split(' ')[-1]
         fractionStrings = re.findall('[0-9]+:[0-9]+', description)
@@ -82,7 +82,9 @@ class Option(Stock):
                 NAMES.action: ACTIONS.split,
                 OPTION_NAMES.strike: self.strike
             })
+        self.codes.append(symbol)
         self.codes.append(newSym)
+        self.codes = sorted(set(self.codes))
 
     def expire(self, quantity: number, date: str, description: str):
         quantity = abs(quantity)
