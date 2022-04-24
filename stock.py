@@ -21,9 +21,10 @@ class NAMES:
     ticker = 'Symbol'
     quantity = 'Quantity'
     currency = 'Currency'
+    id = 'ID'
     description = 'Description'
     index = 'Index'
-    avg = 'Average cost'
+    avg = 'Average position price'
     tot = 'Total Amount of shares'
 
 
@@ -45,10 +46,14 @@ def initDf() -> pd.DataFrame:
 df = initDf()
 class Stock:
     index: number = 0
+    counter: number = 0
     df = initDf()
     def __init__(self, ticker: str, currency: str):
         self.avg: number = 0
+        self.avgShort: number = 0
         self.total: number = 0
+        self.id = Stock.counter
+        Stock.counter += 1
         self.ticker: str = self._adjTickerName(ticker, currency)
         self.currency = currency
         
@@ -97,7 +102,8 @@ class Stock:
                         self._add({
                             ACTIONS.split: ratio,
                             NAMES.action: ACTIONS.split,
-                            NAMES.date: splitDateTime
+                            NAMES.date: splitDateTime,
+                            NAMES.avg: self.avg
                         })
             self.prev_date = dateTime
         except:
@@ -126,20 +132,22 @@ class Stock:
                 NAMES.date: dateTime, 
                 NAMES.action: ACTIONS.buy, 
                 NAMES.quantity: quantity, 
-                NAMES.price: price, 
+                NAMES.price: price,
+                NAMES.avg: self.avg
                 }
             self._add(data)
     def _buyToClose(self, quantity: number, price: number, date: str, description: str):
         self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         quantity = abs(quantity)
-        self.avg = price
+        
         self.total += quantity
         data = {
             NAMES.date: dateTime, 
             NAMES.action: ACTIONS.buyToClose, 
             NAMES.quantity: quantity, 
-            NAMES.price: price, 
+            NAMES.price: self.avg, 
+            NAMES.avg: price
             }
         self._add(data)
     def sell(self, quantity: number, price: number, commission: number, date: str, description: str):
@@ -160,7 +168,8 @@ class Stock:
                 NAMES.date: dateTime, 
                 NAMES.action: ACTIONS.sell, 
                 NAMES.quantity: quantity, 
-                NAMES.price: price, 
+                NAMES.price: price,
+                NAMES.avg: self.avg
                 }
             self._add(data)
     def getDf(self)->pd.DataFrame:
@@ -168,6 +177,7 @@ class Stock:
     def setDf(self, df: pd.DataFrame):
         Stock.df = df
     def _shortSell(self, quantity: number, price: number, date: str, description: str):
+        self.avg = (self.avg * self.total + quantity * price) / (abs(self.total) + quantity)
         self.description = description
         self.total -= quantity
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
@@ -176,15 +186,16 @@ class Stock:
             NAMES.action: ACTIONS.shortSell, 
             NAMES.quantity: quantity,
             NAMES.price: price, 
+            NAMES.avg: self.avg
             }
         self._add(data)
     def _add(self, obj: Dict):
         obj[NAMES.ticker] = self.ticker
-        obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
         obj[NAMES.currency] = self.currency
         self.index += 1
         obj[NAMES.index] = self.index
+        obj[NAMES.id] = self.id
         df = self.getDf()
         df = pd.concat(
             [
@@ -207,7 +218,7 @@ class Stock:
     def export():
         Stock.df = Stock._sort(Stock.df)
         Stock.df.to_excel('Stocks.xlsx', index = None)
-    def isRightSecurity(self, symbol: str)->bool:
+    def isRightSecurity(self, symbol: str, description: str)->bool:
         if symbol in self.ticker:
             return True
         if self._adjTickerName(symbol, self.currency) in self.ticker:
