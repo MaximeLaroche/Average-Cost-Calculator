@@ -3,3 +3,6 @@
 *xls
 *.pyc
 *.txt
+env/
+
+!requirements.txt
