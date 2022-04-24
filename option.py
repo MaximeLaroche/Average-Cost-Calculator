@@ -1,9 +1,11 @@
+
 from stock import Stock, ACTIONS, NAMES
 from sqlite3 import Date
 from typing import Dict
 from numpy import number
 import pandas as pd
-import datetime
+from datetime import datetime
+import re
 
 class OPTION_NAMES(NAMES):
     strike = 'Strike Price'
@@ -32,7 +34,7 @@ class Option(Stock):
         self.type: str = description.split(' ')[0]
         ticker = description.split(' ')[1]
         exp = description.split(' ')[2]
-        self.exp: datetime = datetime.datetime.strptime(exp,'%m/%d/%y')
+        self.exp: datetime = datetime.strptime(exp,'%m/%d/%y')
         self.strike: number = float(description.split(' ')[3])
         Stock.__init__(self, ticker, currency)
     def getDf(self)->pd.DataFrame:
@@ -54,29 +56,33 @@ class Option(Stock):
         Option.df = Option._sort(Option.df)
         Option.df.to_excel('Option.xlsx', index = None) 
 
-    def isRightSecurity(self, symbol: str, description: str)->bool:
-        if 'CALL' not in description and 'PUT' not in description:
-            return False
-        exp = description.split(' ')[2]
-        expi: datetime = datetime.datetime.strptime(exp,'%m/%d/%y')
-        
-        if self.type in description:
-            if self.exp == expi:
-                for ticker in self.getTicker():
-                    if ticker in description:
-                        if str(self.strike) in description:
-                            self.codes.append(symbol)
-                            return True
+    def isRightSecurity(self, symbol: str)->bool:
     
         for code in self.codes:
-            if code in description:
-                self.codes.append(symbol)
+            if code == symbol:
                 return True
-            if code in symbol:
-                return True
-        if super().isRightSecurity(symbol, description):
-            return True
+        
         return False
+    def checkSplits(self, dateTime: datetime)->number:
+        return 1
+    def adj(self,date: str, description: str):
+        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
+        newSym = description.split(' ')[-1]
+        fractionStrings = re.findall('[0-9]+:[0-9]+', description)
+        for frString in fractionStrings:
+            num = int(frString.split(':')[0])
+            den = int(frString.split(':')[1])
+            ratio: float = num/den
+            self.avg /= ratio
+            self.total *= ratio
+            self.strike /= ratio
+            self._add({
+                NAMES.date: dateTime,
+                ACTIONS.split: ratio,
+                NAMES.action: ACTIONS.split,
+                OPTION_NAMES.strike: self.strike
+            })
+        self.codes.append(newSym)
         
 
 

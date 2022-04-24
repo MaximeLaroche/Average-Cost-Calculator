@@ -14,11 +14,22 @@ data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
 
 
 securities= [Stock('invalid', 'CAD')]
+def getOption(symbol: str, type: str, description, currency: str)-> Option:
+    for item in securities:
+        if item.isRightSecurity(symbol):
+            item.isRightSecurity(symbol)
+            return item
+    if(type == 'Option'):
+        secu = Option(symbol, description, currency)
+        securities.append(secu)
 
+        return secu
+    return None
 
 def getSecurity(symbol: str, type: str, description, currency: str)-> Stock:
     for item in securities:
-        if item.isRightSecurity(symbol, description):
+        if item.isRightSecurity(symbol):
+            item.isRightSecurity(symbol)
             return item
     if(type == 'Option'):
         secu = Option(symbol, description, currency)
@@ -41,7 +52,8 @@ for index, row in data.iterrows():
         secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'], row['Description'])
     elif(row['Action'] == 'ADJ'):
-        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
+        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu.adj(row['Transaction Date'], row['Description'])
         
 
 Option.export()

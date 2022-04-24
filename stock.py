@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from sqlite3 import Date
-from tabnanny import check
+
 from typing import Dict, List
 from numpy import number, short
 import pandas as pd
@@ -185,7 +185,6 @@ class Stock:
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
         obj[NAMES.currency] = self.currency
-        obj[NAMES.description] = self.description
         self.index += 1
         obj[NAMES.index] = self.index
         df = self.getDf()
@@ -210,7 +209,7 @@ class Stock:
     def export():
         Stock.df = Stock._sort(Stock.df)
         Stock.df.to_excel('Stocks.xlsx', index = None)
-    def isRightSecurity(self, symbol: str, description: str)->bool:
+    def isRightSecurity(self, symbol: str)->bool:
         if symbol in self.ticker:
             return True
         if self._adjTickerName(symbol, self.currency) in self.ticker:

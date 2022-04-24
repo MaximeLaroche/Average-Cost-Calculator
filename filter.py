@@ -9,7 +9,6 @@ def _removeTFSA(df: pd.DataFrame) -> pd.DataFrame:
 def _removeUnsupportedData(df: pd.DataFrame) -> pd.DataFrame:
     df = _removeTFSA(df)
     
-    df = df.drop(df[df["Action"] == "ADJ"].index)
     df = df.drop(df[df["Action"] == "BRW"].index)
     df = df.drop(df[df["Action"] == "CON"].index)
     df = df.drop(df[df["Action"] == "DEP"].index)
