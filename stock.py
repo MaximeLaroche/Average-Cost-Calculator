@@ -1,13 +1,11 @@
 
 
 from datetime import datetime
-from sqlite3 import Date
 
-from typing import Dict, List
-from numpy import number, short
+from typing import Dict
+from numpy import number
 import pandas as pd
 import yfinance as yf
-import csv
 
 class ACTIONS:
     buy = 'Buy'

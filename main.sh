@@ -9,6 +9,9 @@ done < $filename
 rm $filename
 
 # run the script
+python -m pip install pandas==1.4.2
+python -m pip install openpyxl==3.0.9
+python -m pip install yfinance==0.1.70
 python main.py
 
 # Open excel sheets
