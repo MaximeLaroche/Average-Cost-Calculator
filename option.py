@@ -83,7 +83,17 @@ class Option(Stock):
                 OPTION_NAMES.strike: self.strike
             })
         self.codes.append(newSym)
-        
+
+    def expire(self, quantity: number, date: str, description: str):
+        quantity = abs(quantity)
+        price = 0
+        commission = 0
+        if(self.total > 0):
+            self.sell(quantity, price,commission, date, description)
+        elif(self.total < 0):
+            self._buyToClose(quantity,price,date,description)
+    def assign(self, quantity: number, date: str, description: str):
+        self.expire(quantity, date, description)
 
 
         

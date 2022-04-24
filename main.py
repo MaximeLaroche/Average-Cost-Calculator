@@ -54,7 +54,12 @@ for index, row in data.iterrows():
     elif(row['Action'] == 'ADJ'):
         secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
         secu.adj(row['Transaction Date'], row['Description'])
-        
+    elif(row['Action'] == 'EXP'):
+        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu.expire(row['Quantity'], row['Transaction Date'], row['Description'])
+    elif(row['Action'] == 'ASN'):
+        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu.assign(row['Quantity'], row['Transaction Date'], row['Description'])
 
 Option.export()
 Stock.export()       
