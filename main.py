@@ -10,7 +10,7 @@ data = pd.read_excel('Input.xlsx', sheet_name='Activities')
 
 
 data = filter.removeBadData(data)
-data.sort_values(by=['Symbol', 'Transaction Date'], ascending=[True,True], inplace=True)
+data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
 
 
 securities= [Stock('invalid', 'CAD')]
@@ -18,7 +18,7 @@ securities= [Stock('invalid', 'CAD')]
 
 def getSecurity(symbol: str, type: str, description, currency: str)-> Stock:
     for item in securities:
-        if symbol == item.getTicker():
+        if item.isRightSecurity(symbol, description):
             return item
     if(type == 'Option'):
         secu = Option(symbol, description, currency)
@@ -36,10 +36,12 @@ for index, row in data.iterrows():
         type = 'Stock'
     if(row['Action'] == 'Buy'):
         secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
-        secu.buy(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'])
+        secu.buy(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'], row['Description'])
     elif(row['Action']== 'Sell'):
         secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
-        secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'])
+        secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'], row['Description'])
+    elif(row['Action'] == 'ADJ'):
+        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         
 
 Option.export()

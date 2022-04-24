@@ -23,6 +23,7 @@ class NAMES:
     ticker = 'Symbol'
     quantity = 'Quantity'
     currency = 'Currency'
+    description = 'Description'
     index = 'Index'
     avg = 'Average cost'
     tot = 'Total Amount of shares'
@@ -36,6 +37,7 @@ def initDf() -> pd.DataFrame:
         NAMES.price, 
         NAMES.index,
         NAMES.quantity, 
+        NAMES.description,
         NAMES.currency,
         NAMES.avg, 
         NAMES.tot])
@@ -107,7 +109,8 @@ class Stock:
         return self.ticker
     def _getAdjCommision(self, commission: number)-> number:
         return commission
-    def buy(self, quantity: number, price: number, commission: number, date: str):
+    def buy(self, quantity: number, price: number, commission: number, date: str, description: str):
+        self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         self.checkSplits(dateTime)
         quantity = abs(quantity)
@@ -117,7 +120,7 @@ class Stock:
         if(self.total < 0):
             buyToCloseQty = min(abs(self.total), quantity)
             quantity -= buyToCloseQty
-            self._buyToClose(buyToCloseQty, price, date)
+            self._buyToClose(buyToCloseQty, price, date, description)
         if(quantity != 0): # the buy to closde may have put the remaining to 0
             self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
             self.total += quantity
@@ -128,7 +131,8 @@ class Stock:
                 NAMES.price: price, 
                 }
             self._add(data)
-    def _buyToClose(self, quantity: number, price: number, date: str):
+    def _buyToClose(self, quantity: number, price: number, date: str, description: str):
+        self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         quantity = abs(quantity)
         self.avg = price
@@ -140,7 +144,8 @@ class Stock:
             NAMES.price: price, 
             }
         self._add(data)
-    def sell(self, quantity: number, price: number, commission: number, date: str):
+    def sell(self, quantity: number, price: number, commission: number, date: str, description: str):
+        self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         self.checkSplits(dateTime)
         commission = abs(commission)
@@ -150,7 +155,7 @@ class Stock:
         if(self.total - quantity < 0):
             shortQty = quantity - self.total
             quantity -= shortQty
-            self._shortSell(shortQty, price, date)
+            self._shortSell(shortQty, price, date, description)
         if(quantity != 0):
             self.total -= quantity
             data = {
@@ -164,7 +169,8 @@ class Stock:
         return Stock.df
     def setDf(self, df: pd.DataFrame):
         Stock.df = df
-    def _shortSell(self, quantity: number, price: number, date: str):
+    def _shortSell(self, quantity: number, price: number, date: str, description: str):
+        self.description = description
         self.total -= quantity
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         data = {
@@ -179,6 +185,7 @@ class Stock:
         obj[NAMES.avg] = self.avg
         obj[NAMES.tot] = self.total
         obj[NAMES.currency] = self.currency
+        obj[NAMES.description] = self.description
         self.index += 1
         obj[NAMES.index] = self.index
         df = self.getDf()
@@ -202,6 +209,12 @@ class Stock:
         return df
     def export():
         Stock.df = Stock._sort(Stock.df)
-        Stock.df.to_excel('Stocks.xlsx', index = None) 
+        Stock.df.to_excel('Stocks.xlsx', index = None)
+    def isRightSecurity(self, symbol: str, description: str)->bool:
+        if symbol in self.ticker:
+            return True
+        if self._adjTickerName(symbol, self.currency) in self.ticker:
+            return True
+        return False
 
     
