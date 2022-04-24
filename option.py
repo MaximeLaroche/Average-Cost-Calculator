@@ -31,6 +31,7 @@ class Option(Stock):
     df = initDf()
     def __init__(self, code: str, description: str, currency: str):
         self.codes = [code]
+        self.splitDates = []
         self.type: str = description.split(' ')[0]
         ticker = description.split(' ')[1]
         exp = description.split(' ')[2]
@@ -66,22 +67,25 @@ class Option(Stock):
     def checkSplits(self, dateTime: datetime)->number:
         return 1
     def adj(self,date: str,symbol: str, description: str):
+            
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         newSym = description.split(' ')[-1]
         fractionStrings = re.findall('[0-9]+:[0-9]+', description)
-        for frString in fractionStrings:
-            num = int(frString.split(':')[0])
-            den = int(frString.split(':')[1])
-            ratio: float = num/den
-            self.avg /= ratio
-            self.total *= ratio
-            self.strike /= ratio
-            self._add({
-                NAMES.date: dateTime,
-                ACTIONS.split: ratio,
-                NAMES.action: ACTIONS.split,
-                OPTION_NAMES.strike: self.strike
-            })
+        if date not in self.splitDates:
+            self.splitDates.append(date)
+            for frString in fractionStrings:
+                num = int(frString.split(':')[0])
+                den = int(frString.split(':')[1])
+                ratio: float = num/den
+                self.avg /= ratio
+                self.total *= ratio
+                self.strike /= ratio
+                self._add({
+                    NAMES.date: dateTime,
+                    ACTIONS.split: ratio,
+                    NAMES.action: ACTIONS.split,
+                    OPTION_NAMES.strike: self.strike
+                })
         self.codes.append(symbol)
         self.codes.append(newSym)
         self.codes = sorted(set(self.codes))
