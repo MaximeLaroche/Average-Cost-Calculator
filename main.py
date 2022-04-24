@@ -14,17 +14,16 @@ data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
 
 
 securities= [Stock('invalid', 'CAD')]
-def getOption(symbol: str, type: str, description, currency: str)-> Option:
+def getOption(symbol: str, description, currency: str)-> Option:
     for item in securities:
         if item.isRightSecurity(symbol):
             item.isRightSecurity(symbol)
             return item
-    if(type == 'Option'):
-        secu = Option(symbol, description, currency)
-        securities.append(secu)
+    
+    secu = Option(symbol, description, currency)
+    securities.append(secu)
 
-        return secu
-    return None
+    return secu
 
 def getSecurity(symbol: str, type: str, description, currency: str)-> Stock:
     for item in securities:
@@ -52,13 +51,13 @@ for index, row in data.iterrows():
         secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         secu.sell(row['Quantity'], row['Price'], row['Commission'], row['Transaction Date'], row['Description'])
     elif(row['Action'] == 'ADJ'):
-        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
         secu.adj(row['Transaction Date'], row['Description'])
     elif(row['Action'] == 'EXP'):
-        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
         secu.expire(row['Quantity'], row['Transaction Date'], row['Description'])
     elif(row['Action'] == 'ASN'):
-        secu = getOption(row['Symbol'], type, row['Description'], row['Currency'])
+        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
         secu.assign(row['Quantity'], row['Transaction Date'], row['Description'])
 
 Option.export()
