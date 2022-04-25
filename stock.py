@@ -1,7 +1,7 @@
 
 
 from datetime import datetime
-
+from exchangeRate import ExchangeRate
 from typing import Dict
 from numpy import number
 import pandas as pd
@@ -21,6 +21,7 @@ class NAMES:
     ticker = 'Symbol'
     quantity = 'Quantity'
     currency = 'Currency'
+    rate = 'Exchange rate'
     id = 'ID'
     description = 'Description'
     index = 'Index'
@@ -42,13 +43,13 @@ def initDf() -> pd.DataFrame:
         NAMES.tot])
     return df
 
-
-df = initDf()
+RATE = ExchangeRate()
 class Stock:
     index: number = 0
     counter: number = 0
     df = initDf()
     def __init__(self, ticker: str, currency: str):
+        self.avgRate: number = 1
         self.avg: number = 0
         self.avgShort: number = 0
         self.total: number = 0
@@ -126,6 +127,7 @@ class Stock:
             quantity -= buyToCloseQty
             self._buyToClose(buyToCloseQty, price, date, description)
         if(quantity != 0): # the buy to closde may have put the remaining to 0
+            self._updateRate(quantity, price, dateTime)
             self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
             self.total += quantity
             data = {
@@ -177,10 +179,11 @@ class Stock:
     def setDf(self, df: pd.DataFrame):
         Stock.df = df
     def _shortSell(self, quantity: number, price: number, date: str, description: str):
+        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
+        self._updateRate(quantity, price, dateTime)
         self.avg = (self.avg * self.total + quantity * price) / (abs(self.total) + quantity)
         self.description = description
         self.total -= quantity
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         data = {
             NAMES.date: dateTime, 
             NAMES.action: ACTIONS.shortSell, 
@@ -196,6 +199,7 @@ class Stock:
         self.index += 1
         obj[NAMES.index] = self.index
         obj[NAMES.id] = self.id
+        obj[NAMES.rate] = self.avgRate
         df = self.getDf()
         df = pd.concat(
             [
@@ -224,5 +228,8 @@ class Stock:
         if self._adjTickerName(symbol, self.currency) in self.ticker:
             return True
         return False
+    def _updateRate(self, quantity: number, price: number, date: datetime):
+        rate = RATE.getRate(self.currency, date)
+        self.avgRate = (self.avgRate * self.avg * self.total + rate * quantity * price) / (self.avg * self.total + quantity * price)
 
     

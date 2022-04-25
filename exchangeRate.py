@@ -23,7 +23,7 @@ class ExchangeRate:
             except Exception as e:
                 print(e)
                 print("error getting currency data for " + self.currency)
-    def getRate(self, currency: str, date: datetime, precision = YEARLY):
+    def getRate(self, currency: str, date: datetime, precision = DAILY):
         if currency == 'CAD':
             return 1
         if precision == ExchangeRate.YEARLY:
@@ -37,5 +37,7 @@ class ExchangeRate:
 
     def _getYearlyRate(self, date: datetime):
         endOfYear = datetime(year=date.year, month=12, day=31)
+        if endOfYear > date:
+            endOfYear = date
         rate = self.data.loc[str(endOfYear.date()),'Close']
         return rate
