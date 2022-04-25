@@ -27,6 +27,9 @@ class NAMES:
     index = 'Index'
     avg = 'Average position price'
     tot = 'Total Amount of shares'
+    transactionValue = 'Value of Transaction'
+    averageValue = 'Valeur of position'
+    profit = 'Profit'
 
 
 def initDf() -> pd.DataFrame:
@@ -135,6 +138,7 @@ class Stock:
                 NAMES.action: ACTIONS.buy, 
                 NAMES.quantity: quantity, 
                 NAMES.price: price,
+                NAMES.transactionValue: self.getTransactionTotal(price, quantity),
                 NAMES.avg: self.avg
                 }
             self._add(data)
@@ -149,9 +153,17 @@ class Stock:
             NAMES.action: ACTIONS.buyToClose, 
             NAMES.quantity: quantity, 
             NAMES.price: self.avg, 
+            NAMES.transactionValue: self.getTransactionTotal(price, quantity),
+            NAMES.profit: self.getProfit(price, quantity),
             NAMES.avg: price
             }
         self._add(data)
+    def getTotalOverall(self)->number:
+        return self.total * self.avg
+    def getTransactionTotal(self, price: number, quantity: number)-> number:
+        return price * quantity
+    def getProfit(self, price: number, quantity: number)->number:
+        return self.getTransactionTotal(price, quantity) - self.getTotalOverall()
     def sell(self, quantity: number, price: number, commission: number, date: str, description: str):
         self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
@@ -160,10 +172,12 @@ class Stock:
         quantity = abs(quantity)
         commission = self._getAdjCommision(commission)
         price = price - commission/quantity
+        short = False
+        shortQty = quantity - self.total
         if(self.total - quantity < 0):
-            shortQty = quantity - self.total
+            short = True
             quantity -= shortQty
-            self._shortSell(shortQty, price, date, description)
+            
         if(quantity != 0):
             self.total -= quantity
             data = {
@@ -171,9 +185,13 @@ class Stock:
                 NAMES.action: ACTIONS.sell, 
                 NAMES.quantity: quantity, 
                 NAMES.price: price,
+                NAMES.transactionValue: self.getTransactionTotal(price, quantity),
+                NAMES.profit: self.getProfit(price, quantity),
                 NAMES.avg: self.avg
                 }
             self._add(data)
+        if short:
+            self._shortSell(shortQty, price, date, description)
     def getDf(self)->pd.DataFrame:
         return Stock.df
     def setDf(self, df: pd.DataFrame):
@@ -189,7 +207,8 @@ class Stock:
             NAMES.action: ACTIONS.shortSell, 
             NAMES.quantity: quantity,
             NAMES.price: price, 
-            NAMES.avg: self.avg
+            NAMES.avg: self.avg,
+            NAMES.transactionValue: self.getTransactionTotal(price, quantity)
             }
         self._add(data)
     def _add(self, obj: Dict):
@@ -200,6 +219,8 @@ class Stock:
         obj[NAMES.index] = self.index
         obj[NAMES.id] = self.id
         obj[NAMES.rate] = self.avgRate
+        obj[NAMES.averageValue] = self.getTotalOverall()
+
         df = self.getDf()
         df = pd.concat(
             [

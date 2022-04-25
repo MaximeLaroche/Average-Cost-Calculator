@@ -66,6 +66,10 @@ class Option(Stock):
         return False
     def checkSplits(self, dateTime: datetime)->number:
         return 1
+    def getTotalOverall(self)->number:
+        return 100 * super().getTotalOverall()
+    def getTransactionTotal(self, price: number, quantity: number)-> number:
+        return 100 * super().getTransactionTotal(price, quantity)
     def sort()-> pd.DataFrame:
         return Option._sort(Option.df)
     def adj(self,date: str,symbol: str, description: str):
