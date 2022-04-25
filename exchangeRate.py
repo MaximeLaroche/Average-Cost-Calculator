@@ -67,7 +67,7 @@ class BankOfCanadaRate:
         except Exception as e:
             raise e
         
-    def getRate(self, currency: str, date: datetime, precision = DAILY):
+    def getRate(self, currency: str, date: datetime, precision = YEARLY):
         if currency == 'CAD':
             return 1
         try:
