@@ -1,7 +1,7 @@
 
 
 from datetime import datetime
-from exchangeRate import ExchangeRate
+from exchangeRate import BankOfCanadaRate
 from typing import Dict
 from numpy import number
 import pandas as pd
@@ -43,7 +43,7 @@ def initDf() -> pd.DataFrame:
         NAMES.tot])
     return df
 
-RATE = ExchangeRate()
+RATE = BankOfCanadaRate()
 class Stock:
     index: number = 0
     counter: number = 0
