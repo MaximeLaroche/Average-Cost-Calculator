@@ -217,11 +217,11 @@ class Stock:
         self.avg /= ratio
         self.total *= ratio
     def _sort(df: pd.DataFrame)-> pd.DataFrame:
-        df.sort_values(by=[NAMES.ticker, NAMES.date, NAMES.index], ascending=[True,True, True], inplace=True)
+
+        df.sort_values(by=[NAMES.id, NAMES.date, NAMES.index], ascending=[True,True, True], inplace=True)
         return df
-    def export():
-        Stock.df = Stock._sort(Stock.df)
-        Stock.df.to_excel('Stocks.xlsx', index = None)
+    def sort()-> pd.DataFrame:
+        return Stock._sort(Stock.df)
     def isRightSecurity(self, symbol: str, description: str)->bool:
         if symbol in self.ticker:
             return True

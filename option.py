@@ -66,6 +66,8 @@ class Option(Stock):
         return False
     def checkSplits(self, dateTime: datetime)->number:
         return 1
+    def sort()-> pd.DataFrame:
+        return Option._sort(Option.df)
     def adj(self,date: str,symbol: str, description: str):
             
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')

@@ -5,6 +5,7 @@ import numpy as np
 from stock import Stock, NAMES, ACTIONS
 from option import Option
 import filter
+from dataExport import export
 data = pd.read_excel('Input.xlsx', sheet_name='Activities')
 
 
@@ -60,6 +61,5 @@ for index, row in data.iterrows():
         secu = getOption(row['Symbol'], row['Description'], row['Currency'])
         secu.assign(row['Quantity'], row['Transaction Date'], row['Description'])
 
-Option.export()
-Stock.export()       
-        
+     
+export()
