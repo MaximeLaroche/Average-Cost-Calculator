@@ -1,4 +1,3 @@
-from lib2to3.pgen2.token import NAME
 import pandas as pd
 from stock import Stock, NAMES
 from option import Option, OPTION_NAMES

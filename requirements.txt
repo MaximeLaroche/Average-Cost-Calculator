@@ -2,3 +2,4 @@ numpy==1.22.3
 pandas==1.4.2
 yfinance==0.1.70
 openpyxl==3.0.9
+xlsxwriter==3.0.3
