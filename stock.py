@@ -30,6 +30,11 @@ class NAMES:
     transactionValue = 'Value of Transaction'
     averageValue = 'Valeur of position'
     profit = 'Profit'
+    aquisitionCost = 'Aquisition Cost'
+    aquisitionRate = 'Average aquisition Exchange rate'
+    dispotitionValue = 'Value of Disposition'
+    dispositionRate = 'Disposition Exchange Rate'
+
 
 
 def initDf() -> pd.DataFrame:
@@ -153,10 +158,14 @@ class Stock:
             NAMES.date: dateTime, 
             NAMES.action: ACTIONS.buyToClose, 
             NAMES.quantity: quantity, 
-            NAMES.price: self.avg, 
+            NAMES.price: price, 
             NAMES.transactionValue: self.getTransactionTotal(price, quantity),
             NAMES.profit: self.getProfit(price, self.avg, quantity),
-            NAMES.avg: price
+            NAMES.avg: self.avg,
+            NAMES.aquisitionCost: self.getTransactionTotal(price, quantity),
+            NAMES.aquisitionRate: RATE.getRate(self.currency, dateTime),
+            NAMES.dispotitionValue: self.getTransactionTotal(self.avg, quantity),
+            NAMES.dispositionRate: self.avgRate
             }
         self._add(data)
     def getTotalOverall(self, quantity)->number:
@@ -188,7 +197,11 @@ class Stock:
                 NAMES.price: price,
                 NAMES.transactionValue: self.getTransactionTotal(price, quantity),
                 NAMES.profit: self.getProfit(self.avg, price, quantity),
-                NAMES.avg: self.avg
+                NAMES.avg: self.avg,
+                NAMES.aquisitionCost: self.getTransactionTotal(self.avg, quantity),
+                NAMES.aquisitionRate: self.avgRate,
+                NAMES.dispotitionValue: self.getTransactionTotal(price, quantity),
+                NAMES.dispositionRate: RATE.getRate(self.currency, dateTime)
                 }
             self._add(data)
         if short:
