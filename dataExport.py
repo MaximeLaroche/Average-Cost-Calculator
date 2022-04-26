@@ -1,6 +1,7 @@
+from lib2to3.pgen2.token import NAME
 import pandas as pd
-from stock import Stock
-from option import Option
+from stock import Stock, NAMES
+from option import Option, OPTION_NAMES
 
 
 def _createBook(df: pd.DataFrame, name: str):
@@ -25,8 +26,9 @@ def _createBook(df: pd.DataFrame, name: str):
     writer.save()
 def export():
     optionDf = Option.sort()
+    optionDf = optionDf[[NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, OPTION_NAMES.exp, OPTION_NAMES.strike, NAMES.quantity, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index]]
     stockDf = Stock.sort()
-
+    stockDf = stockDf[[NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, NAMES.quantity, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index]]
     _createBook(optionDf, 'Options')
     _createBook(stockDf, 'Stocks')
     
