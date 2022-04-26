@@ -2,10 +2,11 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 import requests
+import os
 
-
-
-
+folder = 'market_data'
+if not os.path.exists(folder):
+    os.makedirs(folder)
 
 
 
