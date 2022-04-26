@@ -26,7 +26,7 @@ class NAMES:
     description = 'Description'
     index = 'Index'
     avg = 'Average position price'
-    tot = 'Total Amount of shares'
+    tot = 'Total Amount of shares after transaction'
     transactionValue = 'Value of Transaction'
     averageValue = 'Valeur of position'
     profit = 'Profit'
@@ -57,6 +57,7 @@ class Stock:
         self.avgShort: number = 0
         self.total: number = 0
         self.id = Stock.counter
+        self.description = ''
         Stock.counter += 1
         self.ticker: str = self._adjTickerName(ticker, currency)
         self.currency = currency
@@ -154,16 +155,16 @@ class Stock:
             NAMES.quantity: quantity, 
             NAMES.price: self.avg, 
             NAMES.transactionValue: self.getTransactionTotal(price, quantity),
-            NAMES.profit: self.getProfit(price, quantity),
+            NAMES.profit: self.getProfit(price, self.avg, quantity),
             NAMES.avg: price
             }
         self._add(data)
-    def getTotalOverall(self)->number:
-        return self.total * self.avg
+    def getTotalOverall(self, quantity)->number:
+        return quantity * self.avg
     def getTransactionTotal(self, price: number, quantity: number)-> number:
         return price * quantity
-    def getProfit(self, price: number, quantity: number)->number:
-        return self.getTransactionTotal(price, quantity) - self.getTotalOverall()
+    def getProfit(self, buyPrice: number, sellPrice, quantity: number)->number:
+        return quantity * (sellPrice - buyPrice)
     def sell(self, quantity: number, price: number, commission: number, date: str, description: str):
         self.description = description
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
@@ -186,7 +187,7 @@ class Stock:
                 NAMES.quantity: quantity, 
                 NAMES.price: price,
                 NAMES.transactionValue: self.getTransactionTotal(price, quantity),
-                NAMES.profit: self.getProfit(price, quantity),
+                NAMES.profit: self.getProfit(self.avg, price, quantity),
                 NAMES.avg: self.avg
                 }
             self._add(data)
@@ -216,10 +217,10 @@ class Stock:
         obj[NAMES.tot] = self.total
         obj[NAMES.currency] = self.currency
         self.index += 1
+        obj[NAMES.description] = self.description
         obj[NAMES.index] = self.index
         obj[NAMES.id] = self.id
         obj[NAMES.rate] = self.avgRate
-        obj[NAMES.averageValue] = self.getTotalOverall()
 
         df = self.getDf()
         df = pd.concat(

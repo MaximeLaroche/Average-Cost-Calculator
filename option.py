@@ -66,10 +66,12 @@ class Option(Stock):
         return False
     def checkSplits(self, dateTime: datetime)->number:
         return 1
-    def getTotalOverall(self)->number:
-        return 100 * super().getTotalOverall()
+    def getTotalOverall(self, quantity: number)->number:
+        return 100 * super().getTotalOverall(quantity)
     def getTransactionTotal(self, price: number, quantity: number)-> number:
         return 100 * super().getTransactionTotal(price, quantity)
+    def getProfit(self, buyPrice: number, sellPrice, quantity: number)->number:
+        return 100 * super().getProfit(buyPrice, sellPrice, quantity)
     def sort()-> pd.DataFrame:
         return Option._sort(Option.df)
     def adj(self,date: str,symbol: str, description: str):
@@ -77,7 +79,7 @@ class Option(Stock):
         dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
         newSym = description.split(' ')[-1]
         fractionStrings = re.findall('[0-9]+:[0-9]+', description)
-        if date not in self.splitDates:
+        if date not in self.splitDates and len(fractionStrings) > 0:
             self.splitDates.append(date)
             for frString in fractionStrings:
                 num = int(frString.split(':')[0])
