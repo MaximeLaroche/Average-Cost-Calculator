@@ -27,12 +27,9 @@ def _removeUnsupportedData(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-def _removeUnusedCol(df: pd.DataFrame) -> pd.DataFrame:
-    df.drop(['Account #', 'Activity Type', 'Account Type','Settlement Date'], axis = 1, inplace = True) 
-    return df
+
 
 def removeBadData(df: pd.DataFrame)-> pd.DataFrame:
     df = _removeUnsupportedData(df)
-    df = _removeUnusedCol(df)
     # df.to_excel("Input copy.xlsx", index = None)
     return df

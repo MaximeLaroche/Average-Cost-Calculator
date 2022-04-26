@@ -4,5 +4,5 @@
 *.pyc
 *.txt
 env/
-
+!Input.xlsx
 !requirements.txt
