@@ -50,6 +50,11 @@ class Option(Stock):
                 return True
         
         return False
+    def isRightOption(self, ticker: str, strike: number, exp: datetime, type: str, transactionDate: datetime):
+        self.checkSplits(transactionDate)
+        if (self.ticker == ticker or self.ticker == self._adjTickerName(ticker, self.currency)) and self.strike == strike and self.exp == exp and self.type == type:
+            return True
+        return False
     def split(self, ratio: number):
         self.strike /= ratio
         super().split(ratio)

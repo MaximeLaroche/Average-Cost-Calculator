@@ -17,41 +17,40 @@ data = filter.removeBadData(data)
 data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
 
 
-securities= [Stock('invalid', 'CAD')]
-
-
-def makeOption(symbol: str, description: str, currency: str)-> Option:
+stocks= [Stock('invalid', 'CAD')]
+options = [Option('invalid', 'CAD', 'CALL', 'invalid', datetime.now(),0)]
+def extractOptionParams(symbol: str, description: str, currency: str):
     type: str = description.split(' ')[0]
     ticker = description.split(' ')[1]
     expString = description.split(' ')[2]
     exp: datetime = datetime.strptime(expString,'%m/%d/%y')
     strike: number = float(description.split(' ')[3])
+    return ticker, strike, type, exp
+
+def makeOption(symbol: str, description: str, currency: str)-> Option:
+    ticker, strike, type, exp = extractOptionParams(symbol, description, currency)
     option = Option(symbol,currency, type, ticker,exp, strike)
     return option
 
-def getOption(symbol: str, description, currency: str)-> Option:
-    for item in securities:
+def getOption(symbol: str, description, currency: str, transactionDate: datetime)-> Option:
+    ticker, strike, type, exp = extractOptionParams(symbol, description, currency)
+    for item in options:
+        if item.isRightOption(ticker, strike, exp, type, transactionDate):
+            return item
+    
+    secu = makeOption(symbol, description, currency)
+    options.append(secu)
+
+    return secu
+
+def getStock(symbol: str, description, currency: str)-> Stock:
+    for item in stocks:
         if item.isRightSecurity(symbol, description):
             item.isRightSecurity(symbol, description)
             return item
     
-    secu = makeOption(symbol, description, currency)
-    securities.append(secu)
-
-    return secu
-
-def getSecurity(symbol: str, type: str, description, currency: str)-> Stock:
-    for item in securities:
-        if item.isRightSecurity(symbol, description):
-            item.isRightSecurity(symbol, description)
-            return item
-    if(type == 'Option'):
-        secu = makeOption(symbol, description, currency)
-        securities.append(secu)
-
-        return secu
     secu = Stock(symbol, currency)
-    securities.append(secu)
+    stocks.append(secu)
     return secu
 
 
@@ -62,23 +61,31 @@ for index, row in data.iterrows():
     else:
         type = 'Stock'
     date = row['Transaction Date']
-    if(row['Action'] == 'Buy'):
-        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
-        secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
-    elif(row['Action']== 'Sell'):
-        secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
-        secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
-    elif(row['Action'] == 'ADJ'):
-        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
-        newSym = row['Description'].split(' ')[-1]
-        symbols = [row['Symbol'], newSym]
-        secu.addSymbols(symbols)
-    elif(row['Action'] == 'EXP'):
-        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
-        secu.expire(row['Quantity'], date, row['Description'])
-    elif(row['Action'] == 'ASN'):
-        secu = getOption(row['Symbol'], row['Description'], row['Currency'])
-        secu.assign(row['Quantity'], date, row['Description'])
+    if type == 'Option':
+        if(row['Action'] == 'Buy'):
+            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+        elif(row['Action']== 'Sell'):
+            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+        elif(row['Action'] == 'ADJ'):
+            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            newSym = row['Description'].split(' ')[-1]
+            symbols = [row['Symbol'], newSym]
+            secu.addSymbols(symbols)
+        elif(row['Action'] == 'EXP'):
+            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            secu.expire(row['Quantity'], date, row['Description'])
+        elif(row['Action'] == 'ASN'):
+            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            secu.assign(row['Quantity'], date, row['Description'])
+    elif type == 'Stock':
+        if(row['Action'] == 'Buy'):
+            secu = getStock(row['Symbol'], row['Description'], row['Currency'])
+            secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+        elif(row['Action']== 'Sell'):
+            secu = getStock(row['Symbol'], row['Description'], row['Currency'])
+            secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
 
      
 export()
