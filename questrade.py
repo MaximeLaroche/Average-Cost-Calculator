@@ -73,12 +73,6 @@ for index, row in data.iterrows():
         newSym = row['Description'].split(' ')[-1]
         symbols = [row['Symbol'], newSym]
         secu.addSymbols(symbols)
-        fractionStrings = re.findall('[0-9]+:[0-9]+', row['Description'])
-        for frString in fractionStrings:
-            num = int(frString.split(':')[0])
-            den = int(frString.split(':')[1])
-            ratio: float = num/den
-            secu.adj(date, row['Description'], ratio)
     elif(row['Action'] == 'EXP'):
         secu = getOption(row['Symbol'], row['Description'], row['Currency'])
         secu.expire(row['Quantity'], date, row['Description'])

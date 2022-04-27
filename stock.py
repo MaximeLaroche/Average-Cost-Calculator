@@ -90,8 +90,7 @@ class Stock:
                 splitDateTime = datetime.strptime(splitDate, '%Y-%m-%d')
                 if self.prev_date <= splitDateTime <= dateTime:
                     ratio = row['Stock Splits']
-                    self.avg /= ratio
-                    self.total *= ratio
+                    self.split(ratio)
                     if(self.total != 0):
                         self._add({
                             ACTIONS.split: ratio,

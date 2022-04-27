@@ -50,8 +50,9 @@ class Option(Stock):
                 return True
         
         return False
-    def checkSplits(self, dateTime: datetime)->number:
-        return 1
+    def split(self, ratio: number):
+        self.strike /= ratio
+        super().split(ratio)
     def getTotalOverall(self, quantity: number)->number:
         return 100 * super().getTotalOverall(quantity)
     def getTransactionTotal(self, price: number, quantity: number)-> number:
@@ -65,21 +66,6 @@ class Option(Stock):
         for symbol in symbols:
             self.codes.append(symbol)
         self.codes = sorted(set(self.codes))
-    def adj(self,date: datetime, description: str, ratio: number):
-            
-        if date not in self.splitDates:
-            self.splitDates.append(date)
-            
-            self.avg /= ratio
-            self.total *= ratio
-            self.strike /= ratio
-            self._add({
-                NAMES.date: date,
-                ACTIONS.split: ratio,
-                NAMES.action: ACTIONS.split,
-                NAMES.description: description,
-                OPTION_NAMES.strike: self.strike
-            })
 
     def expire(self, quantity: number, date: datetime, description: str):
         quantity = abs(quantity)
@@ -88,7 +74,7 @@ class Option(Stock):
         if(self.total > 0):
             self.sell(quantity, price,commission, date, description)
         elif(self.total < 0):
-            self._buyToClose(quantity,price,date,description)
+            self.buy(quantity,price, 0, date,description)
     def assign(self, quantity: number, date: datetime, description: str):
         self.expire(quantity, date, description)
 
