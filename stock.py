@@ -64,12 +64,12 @@ class Stock:
         return ticker
     def _getSplits(self):
         folder = 'market_data/'
-        if 'invalid' in self.ticker:
+        if 'invalid' in self.ticker or 'H038778' in self.ticker:
             return
         try:
             df = pd.read_csv(folder + self.ticker + '.csv')
             self.splits = df
-            
+
         except:
             ticker = yf.Ticker(self.ticker)
             try:
