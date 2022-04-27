@@ -123,10 +123,10 @@ class Stock:
         return self.ticker
     def _getAdjCommision(self, commission: number)-> number:
         return commission
-    def buy(self, quantity: number, price: number, commission: number, date: str, description: str):
+    def buy(self, quantity: number, price: number, commission: number, date: datetime, description: str):
         self.description = description
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
-        self.checkSplits(dateTime)
+        
+        self.checkSplits(date)
         quantity = abs(quantity)
         commission = abs(commission)
         commission = self._getAdjCommision(commission)
@@ -136,11 +136,11 @@ class Stock:
             quantity -= buyToCloseQty
             self._buyToClose(buyToCloseQty, price, date, description)
         if(quantity != 0): # the buy to closde may have put the remaining to 0
-            self._updateRate(quantity, price, dateTime)
+            self._updateRate(quantity, price, date)
             self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
             self.total += quantity
             data = {
-                NAMES.date: dateTime, 
+                NAMES.date: date, 
                 NAMES.action: ACTIONS.buy, 
                 NAMES.quantity: quantity, 
                 NAMES.price: price,
@@ -148,14 +148,14 @@ class Stock:
                 NAMES.avg: self.avg
                 }
             self._add(data)
-    def _buyToClose(self, quantity: number, price: number, date: str, description: str):
+    def _buyToClose(self, quantity: number, price: number, date: datetime, description: str):
         self.description = description
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
+        
         quantity = abs(quantity)
         
         self.total += quantity
         data = {
-            NAMES.date: dateTime, 
+            NAMES.date: date, 
             NAMES.action: ACTIONS.buyToClose, 
             NAMES.quantity: quantity, 
             NAMES.price: price, 
@@ -163,7 +163,7 @@ class Stock:
             NAMES.profit: self.getProfit(price, self.avg, quantity),
             NAMES.avg: self.avg,
             NAMES.aquisitionCost: self.getTransactionTotal(price, quantity),
-            NAMES.aquisitionRate: RATE.getRate(self.currency, dateTime),
+            NAMES.aquisitionRate: RATE.getRate(self.currency, date),
             NAMES.dispotitionValue: self.getTransactionTotal(self.avg, quantity),
             NAMES.dispositionRate: self.avgRate
             }
@@ -174,10 +174,10 @@ class Stock:
         return price * quantity
     def getProfit(self, buyPrice: number, sellPrice, quantity: number)->number:
         return quantity * (sellPrice - buyPrice)
-    def sell(self, quantity: number, price: number, commission: number, date: str, description: str):
+    def sell(self, quantity: number, price: number, commission: number, date: datetime, description: str):
         self.description = description
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
-        self.checkSplits(dateTime)
+        
+        self.checkSplits(date)
         commission = abs(commission)
         quantity = abs(quantity)
         commission = self._getAdjCommision(commission)
@@ -191,7 +191,7 @@ class Stock:
         if(quantity != 0):
             self.total -= quantity
             data = {
-                NAMES.date: dateTime, 
+                NAMES.date: date, 
                 NAMES.action: ACTIONS.sell, 
                 NAMES.quantity: quantity, 
                 NAMES.price: price,
@@ -201,7 +201,7 @@ class Stock:
                 NAMES.aquisitionCost: self.getTransactionTotal(self.avg, quantity),
                 NAMES.aquisitionRate: self.avgRate,
                 NAMES.dispotitionValue: self.getTransactionTotal(price, quantity),
-                NAMES.dispositionRate: RATE.getRate(self.currency, dateTime)
+                NAMES.dispositionRate: RATE.getRate(self.currency, date)
                 }
             self._add(data)
         if short:
@@ -210,14 +210,13 @@ class Stock:
         return Stock.df
     def setDf(self, df: pd.DataFrame):
         Stock.df = df
-    def _shortSell(self, quantity: number, price: number, date: str, description: str):
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
-        self._updateRate(quantity, price, dateTime)
+    def _shortSell(self, quantity: number, price: number, date: datetime, description: str):
+        self._updateRate(quantity, price, date)
         self.avg = (self.avg * self.total + quantity * price) / (abs(self.total) + quantity)
         self.description = description
         self.total -= quantity
         data = {
-            NAMES.date: dateTime, 
+            NAMES.date: date, 
             NAMES.action: ACTIONS.shortSell, 
             NAMES.quantity: quantity,
             NAMES.price: price, 

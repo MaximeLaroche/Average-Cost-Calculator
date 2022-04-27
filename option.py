@@ -29,14 +29,14 @@ def initDf() -> pd.DataFrame:
 
 class Option(Stock):
     df = initDf()
-    def __init__(self, code: str, description: str, currency: str):
-        self.codes = [code]
+    def __init__(self, code: str, currency: str, type: str, ticker: str, exp: datetime, strike: number):
         self.splitDates = []
-        self.type: str = description.split(' ')[0]
-        ticker = description.split(' ')[1]
-        exp = description.split(' ')[2]
-        self.exp: datetime = datetime.strptime(exp,'%m/%d/%y')
-        self.strike: number = float(description.split(' ')[3])
+        self.codes = [code]
+        self.currency = currency
+        self.type = type
+        self.ticker = ticker
+        self.exp = exp
+        self.strike = strike
         Stock.__init__(self, ticker, currency)
     def getDf(self)->pd.DataFrame:
         return Option.df
@@ -74,31 +74,28 @@ class Option(Stock):
         return 100 * super().getProfit(buyPrice, sellPrice, quantity)
     def sort()-> pd.DataFrame:
         return Option._sort(Option.df)
-    def adj(self,date: str,symbol: str, description: str):
-            
-        dateTime = datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p')
-        newSym = description.split(' ')[-1]
-        fractionStrings = re.findall('[0-9]+:[0-9]+', description)
-        if date not in self.splitDates and len(fractionStrings) > 0:
-            self.splitDates.append(date)
-            for frString in fractionStrings:
-                num = int(frString.split(':')[0])
-                den = int(frString.split(':')[1])
-                ratio: float = num/den
-                self.avg /= ratio
-                self.total *= ratio
-                self.strike /= ratio
-                self._add({
-                    NAMES.date: dateTime,
-                    ACTIONS.split: ratio,
-                    NAMES.action: ACTIONS.split,
-                    OPTION_NAMES.strike: self.strike
-                })
-        self.codes.append(symbol)
-        self.codes.append(newSym)
-        self.codes = sorted(set(self.codes))
 
-    def expire(self, quantity: number, date: str, description: str):
+    def addSymbols(self, symbols):
+        for symbol in symbols:
+            self.codes.append(symbol)
+        self.codes = sorted(set(self.codes))
+    def adj(self,date: datetime, description: str, ratio: number):
+            
+        if date not in self.splitDates:
+            self.splitDates.append(date)
+            
+            self.avg /= ratio
+            self.total *= ratio
+            self.strike /= ratio
+            self._add({
+                NAMES.date: date,
+                ACTIONS.split: ratio,
+                NAMES.action: ACTIONS.split,
+                NAMES.description: description,
+                OPTION_NAMES.strike: self.strike
+            })
+
+    def expire(self, quantity: number, date: datetime, description: str):
         quantity = abs(quantity)
         price = 0
         commission = 0
@@ -106,7 +103,7 @@ class Option(Stock):
             self.sell(quantity, price,commission, date, description)
         elif(self.total < 0):
             self._buyToClose(quantity,price,date,description)
-    def assign(self, quantity: number, date: str, description: str):
+    def assign(self, quantity: number, date: datetime, description: str):
         self.expire(quantity, date, description)
 
 
