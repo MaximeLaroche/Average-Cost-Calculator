@@ -12,16 +12,25 @@ from labels import NAMES, ACTIONS
 
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
-        NAMES.date, 
-        NAMES.action, 
-        NAMES.ticker ,
-        NAMES.price, 
-        NAMES.index,
-        NAMES.quantity, 
-        NAMES.description,
+        NAMES.date,
+        NAMES.action,
+        NAMES.price,
+        NAMES.ticker,
+        NAMES.quantity,
         NAMES.currency,
-        NAMES.avg, 
-        NAMES.tot])
+        NAMES.rate,
+        NAMES.id,
+        NAMES.description,
+        NAMES.index,
+        NAMES.avg,
+        NAMES.tot,
+        NAMES.transactionValue,
+        NAMES.averageValue,
+        NAMES.profit,
+        NAMES.aquisitionCost,
+        NAMES.aquisitionRate,
+        NAMES.dispotitionValue,
+        NAMES.dispositionRate])
     return df
 
 RATE = BankOfCanadaRate()
@@ -43,10 +52,12 @@ class Stock:
         self.prev_date = None
         self._getSplits()
     def _adjTickerName(self, ticker: str, currency: str)-> str:
+        ticker = ticker.replace('-U', '') # Disnat currency identification
         if(ticker.startswith('.')):
-            ticker = ticker.split('.',1)[1]
-        ticker = ticker.replace('.','-')
+            ticker = ticker.split('.',1)[1] # Questrade bad symbols
+        ticker = ticker.replace('.','-') 
         ticker = ticker.replace('-TO', '.TO')
+        ticker = ticker.replace('-C', '.TO')
         if(ticker == 'SQQQ1'):
             ticker = 'SQQQ'
         

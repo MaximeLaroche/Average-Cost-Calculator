@@ -10,17 +10,7 @@ from labels import OPTION_NAMES, NAMES, ACTIONS
 
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
-        NAMES.date, 
-        NAMES.action, 
-        NAMES.ticker,
-        OPTION_NAMES.type,
-        OPTION_NAMES.strike,
-        OPTION_NAMES.exp,
-        NAMES.currency,
-        NAMES.price, 
-        NAMES.quantity, 
-        NAMES.avg, 
-        NAMES.tot])
+        NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, NAMES.quantity, NAMES.aquisitionCost,NAMES.aquisitionRate, NAMES.dispotitionValue, NAMES.dispositionRate, OPTION_NAMES.exp, OPTION_NAMES.strike, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index])
     return df
 
 class Option(Stock):
