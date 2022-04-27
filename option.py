@@ -1,17 +1,13 @@
 
-from stock import Stock, ACTIONS, NAMES
+from stock import Stock
 from sqlite3 import Date
 from typing import Dict
 from numpy import number
 import pandas as pd
 from datetime import datetime
 import re
+from labels import OPTION_NAMES, NAMES, ACTIONS
 
-class OPTION_NAMES(NAMES):
-    strike = 'Strike Price'
-    exp = 'Expiry Date'
-    type = 'Option Type'
-    codes = 'Other symbols'
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
         NAMES.date, 

@@ -6,34 +6,7 @@ from typing import Dict
 from numpy import number
 import pandas as pd
 import yfinance as yf
-
-class ACTIONS:
-    buy = 'Buy'
-    buyToClose = 'Buy to close'
-    sell = 'Sell'
-    shortSell = 'Short sell'
-    split = 'split'
-
-class NAMES:
-    date = 'Date'
-    action = 'Action'
-    price = 'Price'
-    ticker = 'Symbol'
-    quantity = 'Quantity'
-    currency = 'Currency'
-    rate = 'Exchange rate'
-    id = 'ID'
-    description = 'Description'
-    index = 'Index'
-    avg = 'Average position price'
-    tot = 'Total Amount of shares after transaction'
-    transactionValue = 'Value of Transaction'
-    averageValue = 'Valeur of position'
-    profit = 'Profit'
-    aquisitionCost = 'Aquisition Cost'
-    aquisitionRate = 'Average aquisition Exchange rate'
-    dispotitionValue = 'Value of Disposition'
-    dispositionRate = 'Disposition Exchange Rate'
+from labels import NAMES, ACTIONS
 
 
 

@@ -2,15 +2,15 @@ from math import factorial
 import pandas as pd
 import re
 import numpy as np
-from stock import Stock, NAMES, ACTIONS
+from stock import Stock
 from option import Option
 from datetime import datetime
 from numpy import number
-
+from labels import makeFrench
 import filter
 from dataExport import export
-data = pd.read_excel('Input.xlsx', sheet_name='Activities')
 
+data = pd.read_excel('Input.xlsx', sheet_name='Activities')
 
 
 data = filter.removeBadData(data)
