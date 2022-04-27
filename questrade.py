@@ -10,8 +10,8 @@ from labels import makeFrench
 import filter
 from dataExport import export
 
-data = pd.read_excel('Input.xlsx', sheet_name='Activities')
-
+data = pd.read_excel('questrade.xlsx', sheet_name='Activities')
+data['Transaction Date'] = data['Transaction Date'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p'))
 
 data = filter.removeBadData(data)
 data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
@@ -61,7 +61,7 @@ for index, row in data.iterrows():
         type = 'Option'
     else:
         type = 'Stock'
-    date = datetime.strptime(row['Transaction Date'], '%Y-%m-%d %H:%M:%S %p')
+    date = row['Transaction Date']
     if(row['Action'] == 'Buy'):
         secu = getSecurity(row['Symbol'], type, row['Description'], row['Currency'])
         secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
