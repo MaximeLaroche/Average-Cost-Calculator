@@ -23,6 +23,7 @@ class LABELS:
     transactionValue = 'Value of Transaction'
     averageValue = 'Valeur of position'
     profit = 'Profit'
+    profitCAD = 'Profit (CAD)'
     aquisitionCost = 'Aquisition Cost'
     aquisitionRate = 'Average aquisition Exchange rate'
     dispotitionValue = 'Value of Disposition'

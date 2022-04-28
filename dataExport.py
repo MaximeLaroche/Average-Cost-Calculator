@@ -24,11 +24,19 @@ def _createBook(df: pd.DataFrame, name: str):
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
+
+def calcCADProfits(df: pd.DataFrame)->pd.DataFrame:
+    df[LABELS.profitCAD] = df[LABELS.dispotitionValue] * df[LABELS.dispositionRate] - df[LABELS.aquisitionCost] * df[LABELS.aquisitionRate]
+    return df
 def export(name: str):
     optionDf = Option.sort()
-    optionDf = optionDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index, ACTIONS_LABELS.split]]
     stockDf = Stock.sort()
-    stockDf = stockDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index, ACTIONS_LABELS.split]]
+
+    optionDf = calcCADProfits(optionDf)
+    stockDf = calcCADProfits(stockDf)
+    
+    optionDf = optionDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, LABELS.profit, LABELS.profitCAD, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index, ACTIONS_LABELS.split]]
+    stockDf = stockDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, LABELS.profit, LABELS.profitCAD, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index, ACTIONS_LABELS.split]]
     _createBook(optionDf, name + 'Options')
     _createBook(stockDf, name + 'Stocks')
     
