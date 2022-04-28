@@ -15,19 +15,26 @@ from dataExport import export
 makeFrench()
 data = pd.read_csv('disnat.csv', sep=';', encoding='utf-8', engine='python')
 # data = pd.read_excel('disnat.xlsx')
+def makeDate(dateString: str) -> datetime:
+    if type(dateString) == type('String'):
+        date = datetime.strptime(dateString, '%Y-%m-%d')
+        if date.year < 100:
+            newDate = datetime(date.year+2000, date.month, date.day)
+            return newDate
+        return date
+    return None
+
 data['Date de transaction'] = data['Date de transaction'].apply(
-    lambda date: 
-        datetime.strptime(date, '%Y-%m-%d') if type(date) == type('String')
-        else None
+    lambda date: makeDate(date)
 )
-data['Date de règlement'] = data['Date de règlement'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d'))
+data['Date de règlement'] = data['Date de règlement'].apply(lambda date: makeDate(date))
 data.sort_values(by=['Date de règlement', 'Date de transaction'], ascending=[True, True], inplace=True)
 stocks= [Stock('invalid', 'CAD')]
 options = [Option('invalid', 'CAD', 'CALL', 'invalid', datetime.now(),0)]
 
 
 def extractOptionParams(symbol: str, currency: str):
-    type: str = re.findall('[0-9][P|C][0-9]', symbol)[0]
+    type: str = re.findall('[0-9][P|C][0-9]', symbol)[0][1]
     if 'P' == type:
         type = 'PUT'
     elif 'C' == type:
@@ -35,6 +42,8 @@ def extractOptionParams(symbol: str, currency: str):
     ticker = re.split('[0-9]', symbol)[0]
     dateString: str = re.findall('[0-9]{6}', symbol)[0]
     year = int(dateString[:2])
+    if year < 2000:
+        year += 2000
     month = int(dateString[2:4])
     day = int(dateString[4:6])
     exp: datetime = datetime(year, month, day)
@@ -88,9 +97,12 @@ def makeNum(num)->float:
 
 secType = ''
 successionTransferDate = datetime(year=2019, month=12, day=20)
+debugDate = datetime(year=2021, month=7, day=14)
 for index, row in data.iterrows():
     secType = row["Classification d''actif"]
     date = row['Date de transaction']
+    if date == debugDate:
+        print('Debug')
     if secType == 'Actions':
 
         if 'ACHAT' in row['Type de transaction']:
