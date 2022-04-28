@@ -6,11 +6,11 @@ from numpy import number
 import pandas as pd
 from datetime import datetime
 import re
-from labels import OPTION_NAMES, NAMES, ACTIONS
+from labels import OPTION_LABELS, LABELS, ACTIONS_LABELS
 
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
-        NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, NAMES.quantity, NAMES.aquisitionCost,NAMES.aquisitionRate, NAMES.dispotitionValue, NAMES.dispositionRate, OPTION_NAMES.exp, OPTION_NAMES.strike, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index])
+        LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index])
     return df
 
 class Option(Stock):
@@ -33,10 +33,10 @@ class Option(Stock):
     def _getAdjCommision(self, commission: number)-> number:
         return commission/100
     def _add(self, obj: dict):
-        obj[OPTION_NAMES.strike] = self.strike
-        obj[OPTION_NAMES.exp] = self.exp
-        obj[OPTION_NAMES.type] = self.type
-        obj[OPTION_NAMES.codes] = self.codes
+        obj[OPTION_LABELS.strike] = self.strike
+        obj[OPTION_LABELS.exp] = self.exp
+        obj[OPTION_LABELS.type] = self.type
+        obj[OPTION_LABELS.codes] = self.codes
         
         super()._add(obj)
     def export():
@@ -55,6 +55,7 @@ class Option(Stock):
         if (self.ticker == ticker or self.ticker == self._adjTickerName(ticker, self.currency)) and self.strike == strike and self.exp == exp and self.type == type:
             return True
         return False
+   
     def split(self, ratio: number):
         self.strike /= ratio
         super().split(ratio)
@@ -72,6 +73,12 @@ class Option(Stock):
             self.codes.append(symbol)
         self.codes = sorted(set(self.codes))
 
+    def maybeExpire(self, date: datetime):
+        """
+        Disnat odes not have an "expire" signal. So, at the end of iteration (last possible date), we check if options were not manually closed and past their expiration date. If so, we make them "expire"
+        """
+        if self.total != 0 and date > self.exp:
+            self.expire(self.total, self.exp, self.description)
     def expire(self, quantity: number, date: datetime, description: str):
         quantity = abs(quantity)
         price = 0

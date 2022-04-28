@@ -19,7 +19,7 @@ data.sort_values(by=[ 'Transaction Date'], ascending=[True], inplace=True)
 
 stocks= [Stock('invalid', 'CAD')]
 options = [Option('invalid', 'CAD', 'CALL', 'invalid', datetime.now(),0)]
-def extractOptionParams(symbol: str, description: str, currency: str):
+def extractOptionParams(description: str, currency: str):
     type: str = description.split(' ')[0]
     ticker = description.split(' ')[1]
     expString = description.split(' ')[2]
@@ -28,12 +28,12 @@ def extractOptionParams(symbol: str, description: str, currency: str):
     return ticker, strike, type, exp
 
 def makeOption(symbol: str, description: str, currency: str)-> Option:
-    ticker, strike, type, exp = extractOptionParams(symbol, description, currency)
+    ticker, strike, type, exp = extractOptionParams(description, currency)
     option = Option(symbol,currency, type, ticker,exp, strike)
     return option
 
 def getOption(symbol: str, description, currency: str, transactionDate: datetime)-> Option:
-    ticker, strike, type, exp = extractOptionParams(symbol, description, currency)
+    ticker, strike, type, exp = extractOptionParams(description, currency)
     for item in options:
         if item.isRightOption(ticker, strike, exp, type, transactionDate):
             return item

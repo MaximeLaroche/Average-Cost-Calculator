@@ -1,6 +1,6 @@
 import pandas as pd
-from stock import Stock, NAMES
-from option import Option, OPTION_NAMES
+from stock import Stock, LABELS
+from option import Option, OPTION_LABELS
 
 
 def _createBook(df: pd.DataFrame, name: str):
@@ -25,9 +25,9 @@ def _createBook(df: pd.DataFrame, name: str):
     writer.save()
 def export():
     optionDf = Option.sort()
-    optionDf = optionDf[[NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, NAMES.quantity, NAMES.aquisitionCost,NAMES.aquisitionRate, NAMES.dispotitionValue, NAMES.dispositionRate, OPTION_NAMES.exp, OPTION_NAMES.strike, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index]]
+    optionDf = optionDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index]]
     stockDf = Stock.sort()
-    stockDf = stockDf[[NAMES.date, NAMES.action, NAMES.ticker, NAMES.description, NAMES.quantity, NAMES.aquisitionCost,NAMES.aquisitionRate, NAMES.dispotitionValue, NAMES.dispositionRate, NAMES.price, NAMES.transactionValue,NAMES.avg, NAMES.tot, NAMES.profit,NAMES.currency, NAMES.rate, NAMES.id, NAMES.index]]
+    stockDf = stockDf[[LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index]]
     _createBook(optionDf, 'Options')
     _createBook(stockDf, 'Stocks')
     

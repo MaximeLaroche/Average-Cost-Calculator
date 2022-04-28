@@ -6,31 +6,31 @@ from typing import Dict
 from numpy import number
 import pandas as pd
 import yfinance as yf
-from labels import NAMES, ACTIONS
+from labels import LABELS, ACTIONS_LABELS, DESCRIPTION_LABELS
 
 
 
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
-        NAMES.date,
-        NAMES.action,
-        NAMES.price,
-        NAMES.ticker,
-        NAMES.quantity,
-        NAMES.currency,
-        NAMES.rate,
-        NAMES.id,
-        NAMES.description,
-        NAMES.index,
-        NAMES.avg,
-        NAMES.tot,
-        NAMES.transactionValue,
-        NAMES.averageValue,
-        NAMES.profit,
-        NAMES.aquisitionCost,
-        NAMES.aquisitionRate,
-        NAMES.dispotitionValue,
-        NAMES.dispositionRate])
+        LABELS.date,
+        LABELS.action,
+        LABELS.price,
+        LABELS.ticker,
+        LABELS.quantity,
+        LABELS.currency,
+        LABELS.rate,
+        LABELS.id,
+        LABELS.description,
+        LABELS.index,
+        LABELS.avg,
+        LABELS.tot,
+        LABELS.transactionValue,
+        LABELS.averageValue,
+        LABELS.profit,
+        LABELS.aquisitionCost,
+        LABELS.aquisitionRate,
+        LABELS.dispotitionValue,
+        LABELS.dispositionRate])
     return df
 
 RATE = BankOfCanadaRate()
@@ -53,8 +53,11 @@ class Stock:
         self._getSplits()
     def _adjTickerName(self, ticker: str, currency: str)-> str:
         ticker = ticker.replace('-U', '') # Disnat currency identification
-        if(ticker.startswith('.')):
+        if ticker.startswith('.'):
             ticker = ticker.split('.',1)[1] # Questrade bad symbols
+        elif ticker.startswith('XTSE:'):
+            ticker = ticker.split('XTSE:',1)[1] # Disnat prix de succession entré avec excel
+            ticker += '.TO'
         ticker = ticker.replace('.','-') 
         ticker = ticker.replace('-TO', '.TO')
         ticker = ticker.replace('-C', '.TO')
@@ -64,7 +67,7 @@ class Stock:
         return ticker
     def _getSplits(self):
         folder = 'market_data/'
-        if 'invalid' in self.ticker or 'H038778' in self.ticker:
+        if 'invalid' in self.ticker or 'H038778' or 'NMX' in self.ticker:
             return
         try:
             df = pd.read_csv(folder + self.ticker + '.csv')
@@ -93,10 +96,10 @@ class Stock:
                     self.split(ratio)
                     if(self.total != 0):
                         self._add({
-                            ACTIONS.split: ratio,
-                            NAMES.action: ACTIONS.split,
-                            NAMES.date: splitDateTime,
-                            NAMES.avg: self.avg
+                            ACTIONS_LABELS.split: ratio,
+                            LABELS.action: ACTIONS_LABELS.split,
+                            LABELS.date: splitDateTime,
+                            LABELS.avg: self.avg
                         })
             self.prev_date = dateTime
         except:
@@ -123,12 +126,12 @@ class Stock:
             self.avg = (self.total * self.avg + price * quantity) / (self.total + quantity)
             self.total += quantity
             data = {
-                NAMES.date: date, 
-                NAMES.action: ACTIONS.buy, 
-                NAMES.quantity: quantity, 
-                NAMES.price: price,
-                NAMES.transactionValue: self.getTransactionTotal(price, quantity),
-                NAMES.avg: self.avg
+                LABELS.date: date, 
+                LABELS.action: ACTIONS_LABELS.buy, 
+                LABELS.quantity: quantity, 
+                LABELS.price: price,
+                LABELS.transactionValue: self.getTransactionTotal(price, quantity),
+                LABELS.avg: self.avg
                 }
             self._add(data)
     def _buyToClose(self, quantity: number, price: number, date: datetime, description: str):
@@ -138,17 +141,17 @@ class Stock:
         
         self.total += quantity
         data = {
-            NAMES.date: date, 
-            NAMES.action: ACTIONS.buyToClose, 
-            NAMES.quantity: quantity, 
-            NAMES.price: price, 
-            NAMES.transactionValue: self.getTransactionTotal(price, quantity),
-            NAMES.profit: self.getProfit(price, self.avg, quantity),
-            NAMES.avg: self.avg,
-            NAMES.aquisitionCost: self.getTransactionTotal(price, quantity),
-            NAMES.aquisitionRate: RATE.getRate(self.currency, date),
-            NAMES.dispotitionValue: self.getTransactionTotal(self.avg, quantity),
-            NAMES.dispositionRate: self.avgRate
+            LABELS.date: date, 
+            LABELS.action: ACTIONS_LABELS.buyToClose, 
+            LABELS.quantity: quantity, 
+            LABELS.price: price, 
+            LABELS.transactionValue: self.getTransactionTotal(price, quantity),
+            LABELS.profit: self.getProfit(price, self.avg, quantity),
+            LABELS.avg: self.avg,
+            LABELS.aquisitionCost: self.getTransactionTotal(price, quantity),
+            LABELS.aquisitionRate: RATE.getRate(self.currency, date),
+            LABELS.dispotitionValue: self.getTransactionTotal(self.avg, quantity),
+            LABELS.dispositionRate: self.avgRate
             }
         self._add(data)
     def getTotalOverall(self, quantity)->number:
@@ -174,17 +177,17 @@ class Stock:
         if(quantity != 0):
             self.total -= quantity
             data = {
-                NAMES.date: date, 
-                NAMES.action: ACTIONS.sell, 
-                NAMES.quantity: quantity, 
-                NAMES.price: price,
-                NAMES.transactionValue: self.getTransactionTotal(price, quantity),
-                NAMES.profit: self.getProfit(self.avg, price, quantity),
-                NAMES.avg: self.avg,
-                NAMES.aquisitionCost: self.getTransactionTotal(self.avg, quantity),
-                NAMES.aquisitionRate: self.avgRate,
-                NAMES.dispotitionValue: self.getTransactionTotal(price, quantity),
-                NAMES.dispositionRate: RATE.getRate(self.currency, date)
+                LABELS.date: date, 
+                LABELS.action: ACTIONS_LABELS.sell, 
+                LABELS.quantity: quantity, 
+                LABELS.price: price,
+                LABELS.transactionValue: self.getTransactionTotal(price, quantity),
+                LABELS.profit: self.getProfit(self.avg, price, quantity),
+                LABELS.avg: self.avg,
+                LABELS.aquisitionCost: self.getTransactionTotal(self.avg, quantity),
+                LABELS.aquisitionRate: self.avgRate,
+                LABELS.dispotitionValue: self.getTransactionTotal(price, quantity),
+                LABELS.dispositionRate: RATE.getRate(self.currency, date)
                 }
             self._add(data)
         if short:
@@ -193,29 +196,38 @@ class Stock:
         return Stock.df
     def setDf(self, df: pd.DataFrame):
         Stock.df = df
+    def changeTicker(self, newTicker, date):
+        oldTicker = self.ticker
+        self.ticker = self._adjTickerName(newTicker, self.currency)
+        self.description = oldTicker + DESCRIPTION_LABELS.nameChange + self.ticker
+        data = {
+            LABELS.date: date,
+            LABELS.action: ACTIONS_LABELS.nameChange,
+        }
+        self._add(data)
     def _shortSell(self, quantity: number, price: number, date: datetime, description: str):
         self._updateRate(quantity, price, date)
         self.avg = (self.avg * self.total + quantity * price) / (abs(self.total) + quantity)
         self.description = description
         self.total -= quantity
         data = {
-            NAMES.date: date, 
-            NAMES.action: ACTIONS.shortSell, 
-            NAMES.quantity: quantity,
-            NAMES.price: price, 
-            NAMES.avg: self.avg,
-            NAMES.transactionValue: self.getTransactionTotal(price, quantity)
+            LABELS.date: date, 
+            LABELS.action: ACTIONS_LABELS.shortSell, 
+            LABELS.quantity: quantity,
+            LABELS.price: price, 
+            LABELS.avg: self.avg,
+            LABELS.transactionValue: self.getTransactionTotal(price, quantity)
             }
         self._add(data)
     def _add(self, obj: Dict):
-        obj[NAMES.ticker] = self.ticker
-        obj[NAMES.tot] = self.total
-        obj[NAMES.currency] = self.currency
+        obj[LABELS.ticker] = self.ticker
+        obj[LABELS.tot] = self.total
+        obj[LABELS.currency] = self.currency
         self.index += 1
-        obj[NAMES.description] = self.description
-        obj[NAMES.index] = self.index
-        obj[NAMES.id] = self.id
-        obj[NAMES.rate] = self.avgRate
+        obj[LABELS.description] = self.description
+        obj[LABELS.index] = self.index
+        obj[LABELS.id] = self.id
+        obj[LABELS.rate] = self.avgRate
 
         df = self.getDf()
         df = pd.concat(
@@ -235,18 +247,20 @@ class Stock:
         self.total *= ratio
     def _sort(df: pd.DataFrame)-> pd.DataFrame:
 
-        df.sort_values(by=[NAMES.id, NAMES.date, NAMES.index], ascending=[True,True, True], inplace=True)
+        df.sort_values(by=[LABELS.id, LABELS.date, LABELS.index], ascending=[True,True, True], inplace=True)
         return df
     def sort()-> pd.DataFrame:
         return Stock._sort(Stock.df)
     def isRightSecurity(self, symbol: str, description: str)->bool:
-        if symbol in self.ticker:
-            return True
-        if self._adjTickerName(symbol, self.currency) in self.ticker:
+        if symbol in self.ticker or self._adjTickerName(symbol, self.currency) in self.ticker:
             return True
         return False
     def _updateRate(self, quantity: number, price: number, date: datetime):
         rate = RATE.getRate(self.currency, date)
-        self.avgRate = (self.avgRate * self.avg * self.total + rate * quantity * price) / (self.avg * self.total + quantity * price)
+        total = abs(self.total)
+        quantity = abs(quantity)
+        if (self.avg * total + quantity * price) == 0:
+            print('Debug')
+        self.avgRate = (self.avgRate * self.avg * total + rate * quantity * price) / (self.avg * total + quantity * price)
 
     

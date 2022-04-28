@@ -83,7 +83,7 @@ class BankOfCanadaRate:
         open(BankOfCanadaRate.folder + BankOfCanadaRate._YEARLY_FILE_NAME, "wb").write(content)
         self.readFiles()
         
-    def getRate(self, currency: str, date: datetime, precision = YEARLY):
+    def getRate(self, currency: str, date: datetime, precision = DAILY):
         if currency == 'CAD':
             return 1
         try:

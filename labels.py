@@ -1,12 +1,13 @@
 
-class ACTIONS:
+class ACTIONS_LABELS:
     buy = 'Buy'
     buyToClose = 'Buy to close'
     sell = 'Sell'
     shortSell = 'Short sell'
     split = 'split'
+    nameChange = 'Name change'
 
-class NAMES:
+class LABELS:
     date = 'Date'
     action = 'Action'
     price = 'Price'
@@ -28,40 +29,47 @@ class NAMES:
     dispositionRate = 'Disposition Exchange Rate'
 
 
-class OPTION_NAMES:
+class OPTION_LABELS:
     strike = 'Strike Price'
     exp = 'Expiry Date'
     type = 'Option Type'
     codes = 'Other symbols'
 
+class DESCRIPTION_LABELS:
+    nameChange = ' is now '
+
 def makeFrench():
-    ACTIONS.buy = 'Achat'
-    ACTIONS.buyToClose = 'Achat pour fermer sa position'
-    ACTIONS.sell = 'Vente'
-    ACTIONS.shortSell = 'Vente a découvert'
-    ACTIONS.split = 'split'
+    ACTIONS_LABELS.buy = 'Achat'
+    ACTIONS_LABELS.buyToClose = 'Achat pour fermer sa position'
+    ACTIONS_LABELS.sell = 'Vente'
+    ACTIONS_LABELS.shortSell = 'Vente a découvert'
+    ACTIONS_LABELS.split = 'split'
+    ACTIONS_LABELS.nameChange = 'Changement de nom'
 
-    NAMES.date = 'Date'
-    NAMES.action = 'Action'
-    NAMES.price = 'Prix'
-    NAMES.ticker = 'Symbole'
-    NAMES.quantity = 'Quantité'
-    NAMES.currency = 'Devise'
-    NAMES.rate = 'Taux de change'
-    NAMES.id = 'ID'
-    NAMES.description = 'Description'
-    NAMES.index = 'Index'
-    NAMES.avg = 'Prix moyen de la position'
-    NAMES.tot = 'Nombre total de titre après la transaction'
-    NAMES.transactionValue = 'Valeur de la transaction'
-    NAMES.averageValue = 'Valeur de la position'
-    NAMES.profit = 'Profit'
-    NAMES.aquisitionCost = "Coût d'acquisition"
-    NAMES.aquisitionRate = "Taux de change moyen de l'acquisition"
-    NAMES.dispotitionValue = 'Valeur de la disposition'
-    NAMES.dispositionRate = 'Taux de change moyen de la disposition'
 
-    OPTION_NAMES.strike = 'Strike Price'
-    OPTION_NAMES.exp = "Date d'axpiration"
-    OPTION_NAMES.type = "Type d'option"
-    OPTION_NAMES.codes = "Autre symboles"
+    LABELS.date = 'Date'
+    LABELS.action = 'Action'
+    LABELS.price = 'Prix'
+    LABELS.ticker = 'Symbole'
+    LABELS.quantity = 'Quantité'
+    LABELS.currency = 'Devise'
+    LABELS.rate = 'Taux de change'
+    LABELS.id = 'ID'
+    LABELS.description = 'Description'
+    LABELS.index = 'Index'
+    LABELS.avg = 'Prix moyen de la position'
+    LABELS.tot = 'Nombre total de titre après la transaction'
+    LABELS.transactionValue = 'Valeur de la transaction'
+    LABELS.averageValue = 'Valeur de la position'
+    LABELS.profit = 'Profit'
+    LABELS.aquisitionCost = "Coût d'acquisition"
+    LABELS.aquisitionRate = "Taux de change moyen de l'acquisition"
+    LABELS.dispotitionValue = 'Valeur de la disposition'
+    LABELS.dispositionRate = 'Taux de change moyen de la disposition'
+
+    OPTION_LABELS.strike = 'Strike Price'
+    OPTION_LABELS.exp = "Date d'axpiration"
+    OPTION_LABELS.type = "Type d'option"
+    OPTION_LABELS.codes = "Autre symboles"
+
+    DESCRIPTION_LABELS.nameChange = ' est maintenant '
