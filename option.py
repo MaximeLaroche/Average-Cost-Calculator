@@ -6,11 +6,11 @@ from numpy import number
 import pandas as pd
 from datetime import datetime
 import re
-from labels import OPTION_LABELS, LABELS, ACTIONS_LABELS
+from labels import DESCRIPTION_LABELS, OPTION_LABELS, LABELS, ACTIONS_LABELS
 
 def initDf() -> pd.DataFrame:
     df = pd.DataFrame(columns=[
-        LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index])
+        LABELS.date, LABELS.action, LABELS.ticker, LABELS.description, LABELS.quantity, LABELS.aquisitionCost,LABELS.aquisitionRate, LABELS.dispotitionValue, LABELS.dispositionRate, OPTION_LABELS.exp, OPTION_LABELS.strike, LABELS.price, LABELS.transactionValue,LABELS.avg, LABELS.tot, LABELS.profit,LABELS.currency, LABELS.rate, LABELS.id, LABELS.index, ACTIONS_LABELS.split])
     return df
 
 class Option(Stock):
@@ -21,6 +21,8 @@ class Option(Stock):
         self.currency = currency
         self.type = type
         self.ticker = ticker
+        if(exp.year < 100):
+            exp = datetime(year = 2000 + exp.year, month=exp.month, day=exp.day)
         self.exp = exp
         self.strike = strike
         Stock.__init__(self, ticker, currency)
@@ -83,6 +85,7 @@ class Option(Stock):
         quantity = abs(quantity)
         price = 0
         commission = 0
+        description = DESCRIPTION_LABELS.expiration + self.description
         if(self.total > 0):
             self.sell(quantity, price,commission, date, description)
         elif(self.total < 0):

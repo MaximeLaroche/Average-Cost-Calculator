@@ -14,8 +14,7 @@ from dataExport import export
 
 makeFrench()
 data = pd.read_csv('disnat.csv', sep=';', encoding='utf-8', engine='python')
-
-# data = data.dropna(subset=['Date de transaction'])
+# data = pd.read_excel('disnat.xlsx')
 data['Date de transaction'] = data['Date de transaction'].apply(
     lambda date: 
         datetime.strptime(date, '%Y-%m-%d') if type(date) == type('String')
@@ -88,7 +87,6 @@ def makeNum(num)->float:
     raise 'Trying to make a number out of invalid types'
 
 secType = ''
-date = datetime.now()
 successionTransferDate = datetime(year=2019, month=12, day=20)
 for index, row in data.iterrows():
     secType = row["Classification d''actif"]
@@ -135,7 +133,8 @@ for index, row in data.iterrows():
             secu.sell(int(row['Quantité']), makeNum(row['Prix']), makeNum(row['Commission payée']), date, row['Description'] )
 
 # Check if options expired
+today = datetime.now()
 for option in options:
-    option.maybeExpire(date)   
+    option.maybeExpire(today)   
          
 export()

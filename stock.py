@@ -27,6 +27,7 @@ def initDf() -> pd.DataFrame:
         LABELS.transactionValue,
         LABELS.averageValue,
         LABELS.profit,
+        ACTIONS_LABELS.split,
         LABELS.aquisitionCost,
         LABELS.aquisitionRate,
         LABELS.dispotitionValue,
@@ -52,6 +53,7 @@ class Stock:
         self.prev_date = None
         self._getSplits()
     def _adjTickerName(self, ticker: str, currency: str)-> str:
+        
         ticker = ticker.replace('-U', '') # Disnat currency identification
         if ticker.startswith('.'):
             ticker = ticker.split('.',1)[1] # Questrade bad symbols
@@ -67,7 +69,7 @@ class Stock:
         return ticker
     def _getSplits(self):
         folder = 'market_data/'
-        if 'invalid' in self.ticker or 'H038778' or 'NMX' in self.ticker:
+        if 'invalid' in self.ticker or 'H038778' in self.ticker or 'NMX' in self.ticker:
             return
         try:
             df = pd.read_csv(folder + self.ticker + '.csv')
@@ -252,15 +254,14 @@ class Stock:
     def sort()-> pd.DataFrame:
         return Stock._sort(Stock.df)
     def isRightSecurity(self, symbol: str, description: str)->bool:
-        if symbol in self.ticker or self._adjTickerName(symbol, self.currency) in self.ticker:
+        if symbol == self.ticker or self._adjTickerName(symbol, self.currency) == self.ticker:
             return True
         return False
     def _updateRate(self, quantity: number, price: number, date: datetime):
         rate = RATE.getRate(self.currency, date)
         total = abs(self.total)
         quantity = abs(quantity)
-        if (self.avg * total + quantity * price) == 0:
-            print('Debug')
-        self.avgRate = (self.avgRate * self.avg * total + rate * quantity * price) / (self.avg * total + quantity * price)
+        if (self.avg * total + quantity * price) != 0:
+            self.avgRate = (self.avgRate * self.avg * total + rate * quantity * price) / (self.avg * total + quantity * price)
 
     

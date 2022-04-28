@@ -37,6 +37,7 @@ class OPTION_LABELS:
 
 class DESCRIPTION_LABELS:
     nameChange = ' is now '
+    expiration = 'EXPIRATION '
 
 def makeFrench():
     ACTIONS_LABELS.buy = 'Achat'
