@@ -23,11 +23,31 @@ def makeDate(dateString: str) -> datetime:
             return newDate
         return date
     return None
+def addSECFeesToCommission(qtyRaw: float, priceRaw: float, totalRaw: float, commissionStr: float, typeOfSec: str, typeOfTransaction: str)->float:
+    qty = abs(makeNum(qtyRaw))
+    price = abs(makeNum(priceRaw))
+    total = abs(makeNum(totalRaw))
+    commission = abs(makeNum(commissionStr))
+    fees = 0
+    if 'VENTE' in typeOfTransaction:
+        if typeOfSec == 'Actions':
+            fees = abs(qty * price - commission - total)
+        elif typeOfSec == 'Options':
+            fees = abs(100 * qty * price - commission - total)
+    elif 'ACHAT' in typeOfTransaction:
+        if typeOfSec == 'Actions':
+            fees = abs(qty * price + commission - total)
+        elif typeOfSec == 'Options':
+            fees = abs(100 * qty * price + commission - total)
+    if total == 0:
+        fees = 0
+    return commission + fees
 
 data['Date de transaction'] = data['Date de transaction'].apply(
     lambda date: makeDate(date)
 )
 data['Date de règlement'] = data['Date de règlement'].apply(lambda date: makeDate(date))
+
 data.sort_values(by=['Date de règlement', 'Date de transaction'], ascending=[True, True], inplace=True)
 stocks= [Stock('invalid', 'CAD')]
 options = [Option('invalid', 'CAD', 'CALL', 'invalid', datetime.now(),0)]
@@ -95,16 +115,16 @@ def makeNum(num)->float:
         return numeric
     raise 'Trying to make a number out of invalid types'
 
+
 secType = ''
 successionTransferDate = datetime(year=2019, month=12, day=20)
 debugDate = datetime(year=2021, month=7, day=14)
 for index, row in data.iterrows():
     secType = row["Classification d''actif"]
     date = row['Date de transaction']
-    if date == debugDate:
-        print('Debug')
+    data['Commission payée'] = addSECFeesToCommission(row['Quantité'], row['Prix'], row["Montant de l''opération"], row['Commission payée'], secType, row['Type de transaction'])
     if secType == 'Actions':
-
+        
         if 'ACHAT' in row['Type de transaction']:
             secu = getStock(row['Symbole'], row['Description'], row['Devise du prix'])
             secu.buy(int(row['Quantité']), makeNum(row['Prix']), makeNum(row['Commission payée']), date, row['Description'] )
@@ -136,7 +156,7 @@ for index, row in data.iterrows():
 
 
     elif secType == 'Options':
-
+        
         if 'ACHAT' in row['Type de transaction']:
             secu = getOption(row['Symbole'], row['Description'], row['Devise du prix'], date)
             secu.buy(int(row['Quantité']), makeNum(row['Prix']), makeNum(row['Commission payée']), date, row['Description'] )
