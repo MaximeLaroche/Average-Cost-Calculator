@@ -10,6 +10,8 @@ from labels import makeFrench
 import filter
 from dataExport import export
 
+
+
 data = pd.read_excel('questrade.xlsx', sheet_name='Activities')
 data['Transaction Date'] = data['Transaction Date'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d %H:%M:%S %p'))
 
@@ -87,5 +89,5 @@ for index, row in data.iterrows():
             secu = getStock(row['Symbol'], row['Description'], row['Currency'])
             secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
 
-     
-export()
+    
+export('Questrade')

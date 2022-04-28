@@ -119,7 +119,7 @@ for index, row in data.iterrows():
                 secu = getStock(row['Symbole'], row['Description'], row['Devise du prix'])
                 secu.changeTicker(row['Description'], date)
             except:
-               print('Échange de nom sur ' + row['Description'] + ' le ' + str(date) + ': Veuillez entrer le vieux symbole d\'entreprise dans la rangée symbole et le nouveau symbole dans la rangée description\n')
+                print('Échange de nom sur ' + row['Description'] + ' le ' + str(date) + ': Veuillez entrer le vieux symbole d\'entreprise dans la rangée symbole et le nouveau symbole dans la rangée description\n')
 
 
 
@@ -136,5 +136,5 @@ for index, row in data.iterrows():
 today = datetime.now()
 for option in options:
     option.maybeExpire(today)   
-         
-export()
+        
+export('Disnat')

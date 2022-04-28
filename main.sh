@@ -8,13 +8,25 @@ n=$((n+1))
 done < $filename
 rm $filename
 
-# run the script
+# Update and install program
 git pull
 python -m pip install -r requirements.txt
-python main.py
 
+###### Disnat
+echo "Exécution de disnat"
+python disnat.py
+echo "Terminé l'exécution de disnat"
 # Open excel sheets
-"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" Options.xlsx & stk=$!
-"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" Stocks.xlsx & opt=$!
-echo -e $stk >> $filename
-echo -e $opt >> $filename
+"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" DisnatOptions.xlsx & dsStk=$!
+"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" DisnatStocks.xlsx & dsOpt=$!
+echo -e $dsStk >> $filename
+echo -e $dsOpt >> $filename
+
+
+echo "Exécution de questrade"
+python questrade.py
+echo "Terminé l'exécution de questrade"
+"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" QuestradeOptions.xlsx & qsStk=$!
+"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" QuestradeStocks.xlsx & qsOpt=$!
+echo -e $qsStk >> $filename
+echo -e $qsOpt >> $filename
