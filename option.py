@@ -16,6 +16,8 @@ def initDf() -> pd.DataFrame:
 class Option(Stock):
     df = initDf()
     def __init__(self, code: str, currency: str, type: str, ticker: str, exp: datetime, strike: number):
+        if ticker == 'FB':
+            ticker = 'META'
         self.splitDates = []
         self.codes = [code]
         self.currency = currency

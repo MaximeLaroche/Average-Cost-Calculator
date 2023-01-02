@@ -25,7 +25,10 @@ def extractOptionParams(description: str, currency: str):
     type: str = description.split(' ')[0]
     ticker = description.split(' ')[1]
     expString = description.split(' ')[2]
-    exp: datetime = datetime.strptime(expString,'%m/%d/%y')
+    try:
+        exp: datetime = datetime.strptime(expString,'%m/%d/%y')
+    except:
+        print("except in ", expString)
     strike: number = float(description.split(' ')[3])
     return ticker, strike, type, exp
 
@@ -58,7 +61,7 @@ def getStock(symbol: str, description, currency: str)-> Stock:
 
 type = ''
 for index, row in data.iterrows():
-    if('PUT' in row['Description'] or 'CALL' in row['Description']):
+    if('PUT' in row['Description'] or ('CALL' in row['Description'] and 'BMO COVERED CALL UTILITIES ETF' not in row['Description'])):
         type = 'Option'
     else:
         type = 'Stock'
