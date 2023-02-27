@@ -75,11 +75,11 @@ class BankOfCanadaRate:
     def fetchFromURL(self):
         dailyRes = requests.get(BankOfCanadaRate._DAILY_URL)
         content = dailyRes.content
-        content = content.split(b'"OBSERVATIONS"\n')[1]
+        content = content.split(b'"OBSERVATIONS"')[1]
         open(BankOfCanadaRate.folder + BankOfCanadaRate._DAILY_FILE_NAME, "wb").write(content)
 
         yearlyRes = requests.get(BankOfCanadaRate._YEARLY_URL)
-        content = yearlyRes.content.split(b'"OBSERVATIONS"\n')[1]
+        content = yearlyRes.content.split(b'"OBSERVATIONS"')[1]
         open(BankOfCanadaRate.folder + BankOfCanadaRate._YEARLY_FILE_NAME, "wb").write(content)
         self.readFiles()
         

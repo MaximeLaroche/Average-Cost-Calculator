@@ -3,6 +3,7 @@
 *xls
 *.pyc
 *.txt
+.venv/
 env/
 !Input.xlsx
 !requirements.txt
