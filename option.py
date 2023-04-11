@@ -54,9 +54,9 @@ class Option(Stock):
                 return True
         
         return False
-    def isRightOption(self, ticker: str, strike: number, exp: datetime, type: str, transactionDate: datetime):
+    def isRightOption(self, ticker: str, strike: number, exp: datetime, type: str, transactionDate: datetime, symbol: str):
         self.checkSplits(transactionDate)
-        if (self.ticker == ticker or self.ticker == self._adjTickerName(ticker, self.currency)) and self.strike == strike and self.exp == exp and self.type == type:
+        if (self.ticker == ticker or self.ticker == self._adjTickerName(ticker, self.currency)) and self.strike == strike and self.exp == exp and self.type == type or symbol in self.codes:
             return True
         return False
    

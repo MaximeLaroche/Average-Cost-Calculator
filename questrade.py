@@ -34,13 +34,19 @@ def extractOptionParams(description: str, currency: str):
 
 def makeOption(symbol: str, description: str, currency: str)-> Option:
     ticker, strike, type, exp = extractOptionParams(description, currency)
+    if "SQQQ" in ticker and exp.date() == datetime(2022, 6, 17).date():
+        error_message = "There was a reverse split on SQQQ stock, but not the option. The underlying symbol changed so the system does not recognise the transactions from before and after the sotck split to be from the same security. You must calculate your profits and losses manually by looking at the transactions values in 'QuestradeOptions.xslx"
+        print("-------------------------------------")
+        print(error_message)
+        print(f"{ticker}\t{strike}\t{type}\t{exp}")
     option = Option(symbol,currency, type, ticker,exp, strike)
     return option
 
 def getOption(symbol: str, description, currency: str, transactionDate: datetime)-> Option:
     ticker, strike, type, exp = extractOptionParams(description, currency)
     for item in options:
-        if item.isRightOption(ticker, strike, exp, type, transactionDate):
+        if item.isRightOption(ticker, strike, exp, type, transactionDate, symbol):
+            item.isRightOption(ticker, strike, exp, type, transactionDate, symbol)
             return item
     
     secu = makeOption(symbol, description, currency)
@@ -68,29 +74,33 @@ for index, row in data.iterrows():
     date = row['Transaction Date']
     if type == 'Option':
         if(row['Action'] == 'Buy'):
-            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
-            secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+            option = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            option.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
         elif(row['Action']== 'Sell'):
-            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
-            secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+            option = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            option.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
         elif(row['Action'] == 'ADJ'):
-            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            option = getOption(row['Symbol'], row['Description'], row['Currency'], date)
             newSym = row['Description'].split(' ')[-1]
             symbols = [row['Symbol'], newSym]
-            secu.addSymbols(symbols)
+            option.addSymbols(symbols)
         elif(row['Action'] == 'EXP'):
-            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
-            secu.expire(row['Quantity'], date, row['Description'])
+            option = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            option.expire(row['Quantity'], date, row['Description'])
         elif(row['Action'] == 'ASN'):
-            secu = getOption(row['Symbol'], row['Description'], row['Currency'], date)
-            secu.assign(row['Quantity'], date, row['Description'])
+            option = getOption(row['Symbol'], row['Description'], row['Currency'], date)
+            option.assign(row['Quantity'], date, row['Description'])
+        else:
+            print("not processed", row)
     elif type == 'Stock':
         if(row['Action'] == 'Buy'):
-            secu = getStock(row['Symbol'], row['Description'], row['Currency'])
-            secu.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+            option = getStock(row['Symbol'], row['Description'], row['Currency'])
+            option.buy(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
         elif(row['Action']== 'Sell'):
-            secu = getStock(row['Symbol'], row['Description'], row['Currency'])
-            secu.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+            option = getStock(row['Symbol'], row['Description'], row['Currency'])
+            option.sell(row['Quantity'], row['Price'], row['Commission'], date, row['Description'])
+        else:
+            print("not processed", row)
 
     
 export('Questrade')
