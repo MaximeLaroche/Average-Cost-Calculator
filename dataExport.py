@@ -23,7 +23,7 @@ def _createBook(df: pd.DataFrame, name: str):
     worksheet.set_column(0, max_col - 1, 12)
 
     # Close the Pandas Excel writer and output the Excel file.
-    writer.save()
+    writer.close()
 
 
 def calcCADProfits(df: pd.DataFrame) -> pd.DataFrame:

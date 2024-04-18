@@ -3,6 +3,7 @@
 *xls
 *.pyc
 *.txt
+venv/
 .venv/
 env/
 !Input.xlsx

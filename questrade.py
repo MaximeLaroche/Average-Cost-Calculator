@@ -1,3 +1,4 @@
+import json
 from math import factorial
 import pandas as pd
 import re
@@ -9,6 +10,7 @@ from numpy import number
 from labels import makeFrench
 import filter
 from dataExport import export
+from CostBasis import *
 
 
 data = pd.read_excel("questrade.xlsx", sheet_name="Activities")
@@ -83,6 +85,8 @@ for index, row in data.iterrows():
     else:
         type = "Stock"
     date = row["Transaction Date"]
+    if date.year == 2023:
+        print("2023")
     if type == "Option":
         if row["Action"] == "Buy":
             option = getOption(row["Symbol"], row["Description"], row["Currency"], date)
@@ -137,5 +141,8 @@ for index, row in data.iterrows():
         else:
             print("not processed", row)
 
+        calc_cost_basis(date, stocks, stocks)
 
+with open("costs_basis.json", 'w') as file:
+    json.dump(snapshots, file, indent=4, default=str)
 export("Questrade")
