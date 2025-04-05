@@ -4,7 +4,7 @@ from stock import Stock, LABELS
 from option import Option, OPTION_LABELS
 
 
-def _createBook(df: pd.DataFrame, name: str):
+def createBook(df: pd.DataFrame, name: str):
     # Taken from https://xlsxwriter.readthedocs.io/example_pandas_table.html#ex-pandas-table
     writer = pd.ExcelWriter(name + ".xlsx", engine="xlsxwriter")
     df.to_excel(writer, sheet_name=name, startrow=1, header=False, index=False)
@@ -92,5 +92,5 @@ def export(name: str):
             ACTIONS_LABELS.split,
         ]
     ]
-    _createBook(optionDf, name + "Options")
-    _createBook(stockDf, name + "Stocks")
+    createBook(optionDf, name + "Options")
+    createBook(stockDf, name + "Stocks")

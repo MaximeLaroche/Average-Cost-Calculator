@@ -9,11 +9,12 @@ from datetime import datetime
 from numpy import number
 from labels import makeFrench
 import filter
-from dataExport import export
+from dataExport import createBook, export
 from CostBasis import *
 
 
 data = pd.read_excel("questrade.xlsx", sheet_name="Activities")
+createBook(data, 'Questrade as Table')
 data["Transaction Date"] = data["Transaction Date"].apply(
     lambda date: datetime.strptime(date, "%Y-%m-%d %H:%M:%S %p")
 )
