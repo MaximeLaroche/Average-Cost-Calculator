@@ -51,13 +51,13 @@ class Stock:
         self.id = Stock.counter
         self.description = ""
         Stock.counter += 1
-        self.ticker: str = self._adjTickerName(ticker, currency)
+        self.ticker: str = self._adjTickerName(ticker)
         self.currency = currency
 
         self.prev_date = None
         self._getSplits()
 
-    def _adjTickerName(self, ticker: str, currency: str) -> str:
+    def _adjTickerName(self, ticker: str) -> str:
         ticker = ticker.replace("-U", "")  # Disnat currency identification
         if ticker.startswith("."):
             ticker = ticker.split(".", 1)[1]  # Questrade bad symbols
@@ -69,6 +69,7 @@ class Stock:
         ticker = ticker.replace(".", "-")
         ticker = ticker.replace("-TO", ".TO")
         ticker = ticker.replace("-C", ".TO")
+        ticker = ticker.replace(".TO", "") 
         if ticker == "SQQQ1":
             ticker = "SQQQ"
 
@@ -239,7 +240,7 @@ class Stock:
 
     def changeTicker(self, newTicker, date):
         oldTicker = self.ticker
-        self.ticker = self._adjTickerName(newTicker, self.currency)
+        self.ticker = self._adjTickerName(newTicker)
         self.description = oldTicker + DESCRIPTION_LABELS.nameChange + self.ticker
         data = {
             LABELS.date: date,
@@ -295,10 +296,10 @@ class Stock:
     def sort() -> pd.DataFrame:
         return Stock._sort(Stock.df)
 
-    def isRightSecurity(self, symbol: str, description: str) -> bool:
+    def isRightSecurity(self, symbol: str, currency: str) -> bool:
         if (
-            symbol == self.ticker
-            or self._adjTickerName(symbol, self.currency) == self.ticker
+            self._adjTickerName(symbol) == self.ticker
+            and self.currency == currency
         ):
             return True
         return False

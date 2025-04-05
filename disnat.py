@@ -119,8 +119,8 @@ def getStock(symbol: str, description, currency: str) -> Stock:
     description = defineStringField(description)
     currency = defineStringField(currency)
     for item in stocks:
-        if item.isRightSecurity(symbol, description):
-            item.isRightSecurity(symbol, description)
+        if item.isRightSecurity(symbol, currency):
+            item.isRightSecurity(symbol, currency)
             return item
 
     secu = Stock(symbol, currency)

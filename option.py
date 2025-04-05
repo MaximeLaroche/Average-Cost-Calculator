@@ -86,9 +86,9 @@ class Option(Stock):
         Option.df = Option._sort(Option.df)
         Option.df.to_excel("Option.xlsx", index=None)
 
-    def isRightSecurity(self, symbol: str, description: str) -> bool:
+    def isRightSecurity(self, symbol: str, description: str, currency: str) -> bool:
         for code in self.codes:
-            if code == symbol or code in description:
+            if (code == symbol or code in description) and self.currency == currency:
                 return True
 
         return False
@@ -101,13 +101,12 @@ class Option(Stock):
         type: str,
         transactionDate: datetime,
         symbol: str,
+        currency: str
     ):
         self.checkSplits(transactionDate)
         if (
-            (
-                self.ticker == ticker
-                or self.ticker == self._adjTickerName(ticker, self.currency)
-            )
+            self.ticker == self._adjTickerName(ticker)
+            and self.currency == currency
             and self.strike == strike
             and self.exp == exp
             and self.type == type

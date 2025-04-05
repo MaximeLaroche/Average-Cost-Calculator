@@ -54,8 +54,8 @@ def getOption(
 ) -> Option:
     ticker, strike, type, exp = extractOptionParams(description, currency)
     for item in options:
-        if item.isRightOption(ticker, strike, exp, type, transactionDate, symbol):
-            item.isRightOption(ticker, strike, exp, type, transactionDate, symbol)
+        if item.isRightOption(ticker, strike, exp, type, transactionDate, symbol, currency):
+            item.isRightOption(ticker, strike, exp, type, transactionDate, symbol, currency)
             return item
 
     secu = makeOption(symbol, description, currency)
@@ -66,8 +66,8 @@ def getOption(
 
 def getStock(symbol: str, description, currency: str) -> Stock:
     for item in stocks:
-        if item.isRightSecurity(symbol, description):
-            item.isRightSecurity(symbol, description)
+        if item.isRightSecurity(symbol, currency):
+            item.isRightSecurity(symbol, currency)
             return item
 
     secu = Stock(symbol, currency)
@@ -131,6 +131,19 @@ for index, row in data.iterrows():
             )
         elif row["Action"] == "Sell":
             option = getStock(row["Symbol"], row["Description"], row["Currency"])
+            option.sell(
+                row["Quantity"],
+                row["Price"],
+                row["Commission"],
+                date,
+                row["Description"],
+            )
+        elif row["Action"] == "CON" and row["Activity Type"] == "Withdrawals" and row["Symbol"] is not np.nan: 
+            # Made a contribution to another account so basically transfered money or securities to another account. Can consider it as selling
+            # Check if there is a symbol. When only money is transfered, no symbol and also not relevant/taxable
+            option = getStock(row["Symbol"], row["Description"], row["Currency"])
+            value = float(row["Description"].split("BOOK VALUE $")[1].replace(",",""))
+            row["Price"] = abs(value/row["Quantity"])
             option.sell(
                 row["Quantity"],
                 row["Price"],

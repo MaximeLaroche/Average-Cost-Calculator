@@ -1,18 +1,16 @@
 import pandas as pd
 
 
-def _removeTFSA(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.drop(df[df["Account Type"] == "Individual TFSA"].index)
+def _remove_registeredAccounts(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.drop(df[df["Account Type"] != "Individual margin"].index)
     return df
 
 
 def _removeUnsupportedData(df: pd.DataFrame) -> pd.DataFrame:
-    df = _removeTFSA(df)
+    df = _remove_registeredAccounts(df)
 
     df = df.drop(df[df["Action"] == "BRW"].index)  # only occured in 2020
-    df = df.drop(
-        df[df["Action"] == "CON"].index
-    )  # TFSA Contribution. Not a taxable event
+
     df = df.drop(df[df["Action"] == "DEP"].index)  # Deposit. Not a taxable event
     df = df.drop(
         df[df["Action"] == "EFT"].index
