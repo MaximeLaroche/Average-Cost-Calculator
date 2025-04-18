@@ -86,8 +86,6 @@ for index, row in data.iterrows():
     else:
         type = "Stock"
     date = row["Transaction Date"]
-    if date.year == 2023:
-        print("2023")
     if type == "Option":
         if row["Action"] == "Buy":
             option = getOption(row["Symbol"], row["Description"], row["Currency"], date)
